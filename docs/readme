@@ -1,4 +1,16 @@
 under project folder:
-npx create-react-app frontend //npx runs the latest version directly from npm
 
+for frontend:
+npx create-react-app frontend - npx runs the latest version directly from npm
+npm start -to start frontend
+
+for backend:
+npm init -y
+npm install express cors
+node server.js - to start backend server
+
+to make sure backend files refresh automatically when changes happen:
+npm install -g nodemon
+npm install nodemon --save-dev
+nodemon server.js - to start backend server
 
