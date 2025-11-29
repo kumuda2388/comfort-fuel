@@ -3,6 +3,9 @@ under project folder:
 for frontend:
 npx create-react-app frontend - npx runs the latest version directly from npm
 npm start -to start frontend
+npm install firebase
+npm install react-router-dom
+npm install react-icons
 
 for backend:
 npm init -y
