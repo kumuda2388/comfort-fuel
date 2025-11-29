@@ -1,0 +1,44 @@
+/* Additions for vendor pages; base styles come from styles.css */
+body { background:#fffaf5; color:#333; font-family:'Poppins', sans-serif; }
+
+.auth-container { max-width:480px; margin:60px auto; }
+.auth-tabs { display:flex; gap:8px; margin-bottom:12px; }
+.auth-tab { padding:8px 12px; border-radius:10px; border:1px solid #ffd1dc; background:#fff; cursor:pointer; font-weight:600; color:#a33f64; }
+.auth-tab.active { background:#fce4ec; box-shadow:0 2px 4px rgba(0,0,0,0.06); }
+.toggle-btn { padding:8px 10px; border-radius:10px; background:#fff; color:#a33f64; border:1px solid #ffd1dc; font-weight:600; cursor:pointer; }
+.input-row { display:flex; gap:8px; }
+.input-row input { flex:1; }
+.error-text { color:#c03d5a; margin-top:10px; }
+
+.section { display:none; }
+.section.active { display:block; }
+
+.metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:12px; }
+.metric-card { background:#fff8f8; border:1px solid #ffe1e6; border-radius:14px; padding:14px; box-shadow:0 3px 6px rgba(0,0,0,0.05); }
+.metric-label { color:#7b6068; font-size:.9rem; }
+.metric-value { font-size:1.4rem; font-weight:700; color:#5c3242; margin-top:6px; }
+
+.stack-vert { display:flex; flex-direction:column; gap:12px; }
+
+.logo-title { font-weight:700; font-size:1.25rem; color:#27635a; }
+.logo-sub { color:#7b6068; font-size:.9rem; margin-top:2px; }
+
+.fake-toggle.on { background:#27635a; }
+.fake-toggle.on::after { transform: translateX(20px); }
+
+.logout-btn {
+  margin-top: 16px;
+  background: #f47b9a;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: .9rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.logout-btn:hover { background: #e35b82; }
+
+@media (max-width: 768px) {
+  .input-row { flex-direction:column; }
+}

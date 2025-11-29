@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comfort Fuel · Vendor</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="vendor_styles.css" />
+</head>
+<body>
+<div id="auth-view" class="auth-container">
+  <div class="logo" style="margin-bottom:10px;">
+    <div class="logo-title">Comfort Fuel 🍱</div>
+    <div class="logo-sub">vendor</div>
+  </div>
+  <p class="subtitle" style="margin-bottom:10px;">Sign up or log in to manage meals, orders, chats, and analytics.</p>
+  <div class="auth-tabs">
+    <button class="auth-tab active" data-mode="login">Login</button>
+    <button class="auth-tab" data-mode="signup">Sign Up</button>
+  </div>
+  <div class="card">
+    <form id="auth-form" class="stack">
+      <input type="text" id="username" placeholder="Username (Sign Up)" style="display:none;" />
+      <input type="email" id="email" placeholder="Email" required />
+      <div class="input-row">
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="button" class="toggle-btn" data-toggle="password">Show</button>
+      </div>
+      <button class="btn-primary" type="submit" id="auth-submit">Sign In</button>
+    </form>
+    <p id="login-error" class="error-text"></p>
+  </div>
+</div>
+
+<div id="app-view" class="layout" style="display:none;">
+  <aside class="sidebar">
+    <div class="logo" style="margin-bottom:16px;">
+      <div class="logo-title">Comfort Fuel 🍱</div>
+      <div class="logo-sub">Vendor</div>
+    </div>
+    <ul class="nav">
+      <li><a class="nav-link active" data-section="overview">Home</a></li>
+      <li><a class="nav-link" data-section="meals">Meals</a></li>
+      <li><a class="nav-link" data-section="orders">Orders</a></li>
+      <li><a class="nav-link" data-section="chats">Chats</a></li>
+      <li><a class="nav-link" data-section="analytics">Analytics</a></li>
+      <li><a class="nav-link" data-section="profile">Profile</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <section id="overview" class="section active">
+      <div style="margin-bottom:16px;">
+        <h1 class="page-title" id="welcome">Welcome, Vendor</h1>
+        <p class="subtitle">Manage your menu, orders, and customer chats 💕</p>
+      </div>
+      <div class="metrics">
+        <div class="metric-card"><div class="metric-label">Orders today</div><div class="metric-value" id="metric-orders">--</div></div>
+        <div class="metric-card"><div class="metric-label">Revenue today</div><div class="metric-value" id="metric-revenue">$--</div></div>
+        <div class="metric-card"><div class="metric-label">Live chats</div><div class="metric-value" id="metric-chats">--</div></div>
+        <div class="metric-card"><div class="metric-label">Top meal (7d)</div><div class="metric-value" id="metric-top">--</div></div>
+      </div>
+    </section>
+
+    <section id="meals" class="section">
+      <div style="margin-bottom:16px;">
+        <h1 class="page-title">Meals</h1>
+        <p class="subtitle">Create and edit your menu items🍲</p>
+      </div>
+      <div class="card">
+        <div class="flex" style="justify-content:space-between; margin-bottom:10px;">
+          <h3>Add/Edit Meals</h3>
+          <span class="badge badge-accepted">Menu</span>
+        </div>
+        <div id="meals-list"></div>
+        <form id="meal-form" class="stack-vert">
+          <input type="hidden" id="meal-id" />
+          <input id="meal-name" placeholder="Meal name" required />
+          <textarea id="meal-desc" placeholder="Description" required></textarea>
+          <input id="meal-price" type="number" step="0.01" placeholder="Price" required />
+          <div class="flex" style="gap:10px;">
+            <button class="btn-primary" type="submit">Save Meal</button>
+            <button class="btn-secondary" type="button" id="meal-cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="orders" class="section">
+      <div style="margin-bottom:16px;">
+        <h1 class="page-title">My Orders</h1>
+        <p class="subtitle">Track incoming orders and status 🧾</p>
+      </div>
+      <div class="card">
+        <div class="flex" style="justify-content:space-between; margin-bottom:10px;">
+          <h3>My Orders</h3>
+          <span class="badge badge-pending">Live</span>
+        </div>
+        <table class="table">
+          <thead><tr><th>ID</th><th>Items</th><th>Status</th><th>Total</th><th>Action</th></tr></thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="chats" class="section">
+      <div style="margin-bottom:16px;">
+        <h1 class="page-title">My Chats</h1>
+        <p class="subtitle">Conversations with customers 💬</p>
+      </div>
+      <div class="card">
+        <h3>My Chats</h3>
+        <p class="subtitle">Placeholder</p>
+      </div>
+    </section>
+
+    <section id="analytics" class="section">
+      <div style="margin-bottom:16px;">
+        <h1 class="page-title">My Analytics</h1>
+        <p class="subtitle">Performance and trends 📈</p>
+      </div>
+      <div class="card">
+        <h3>My Analytics</h3>
+        <p class="subtitle">Placeholder</p>
+      </div>
+    </section>
+
+    <section id="profile" class="section">
+      <div style="margin-bottom:16px;">
+        <h1 class="page-title">Profile & Settings</h1>
+        <p class="subtitle">Your account preferences 🌸</p>
+      </div>
+      <div class="card">
+        <div class="field-label">Name</div>
+        <div class="field-value" id="profile-name">—</div>
+
+        <div class="field-label">Email</div>
+        <div class="field-value" id="profile-email">—</div>
+
+        <div class="toggle-row">
+          <span>Dark Mode 🌙</span>
+          <div class="fake-toggle" id="toggle-dark"></div>
+        </div>
+
+        <div class="toggle-row">
+          <span>Order Notifications 🔔</span>
+          <div class="fake-toggle" id="toggle-notify"></div>
+        </div>
+
+        <button id="logout" class="logout-btn">Logout</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, addDoc, updateDoc, doc, getDocs, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDaarAPpoT6BJ9iXhKit0rACptafjJxazM",
+    authDomain: "comfort-fuel.firebaseapp.com",
+    projectId: "comfort-fuel",
+    storageBucket: "comfort-fuel.firebasestorage.app",
+    messagingSenderId: "520695903244",
+    appId: "1:520695903244:web:8656a14cbc7520a9ccea29",
+    measurementId: "G-XVS004DJWP"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const navLinks = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll('.section');
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      const id = link.dataset.section;
+      navLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      sections.forEach(sec => sec.classList.toggle('active', sec.id === id));
+    });
+  });
+
+  let authMode = 'login';
+  const authTabs = document.querySelectorAll('.auth-tab');
+  const usernameInput = document.getElementById('username');
+  const authSubmit = document.getElementById('auth-submit');
+  authTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      authMode = tab.dataset.mode;
+      authTabs.forEach(t => t.classList.toggle('active', t === tab));
+      usernameInput.style.display = authMode === 'signup' ? 'block' : 'none';
+      usernameInput.required = authMode === 'signup';
+      authSubmit.textContent = authMode === 'signup' ? 'Sign Up' : 'Sign In';
+    });
+  });
+
+  document.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-toggle');
+      const input = document.getElementById(targetId);
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      btn.textContent = isHidden ? 'Hide' : 'Show';
+    });
+  });
+
+  const authView = document.getElementById('auth-view');
+  const appView = document.getElementById('app-view');
+  const loginForm = document.getElementById('auth-form');
+  const loginError = document.getElementById('login-error');
+  const welcome = document.getElementById('welcome');
+  const profileName = document.getElementById('profile-name');
+  const profileEmail = document.getElementById('profile-email');
+  const toggleDark = document.getElementById('toggle-dark');
+  const toggleNotify = document.getElementById('toggle-notify');
+
+  [toggleDark, toggleNotify].forEach(t => {
+    t?.addEventListener('click', () => t.classList.toggle('on'));
+  });
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.textContent = '';
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+    const username = usernameInput.value.trim();
+
+    try {
+      if (authMode === 'signup') {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        if (username) await updateProfile(cred.user, { displayName: username });
+        await setDoc(doc(db, 'vendors', cred.user.uid), { username, email });
+      } else {
+        await signInWithEmailAndPassword(auth, email, pass);
+      }
+    } catch (err) {
+      loginError.textContent = err.message;
+    }
+  });
+
+  document.getElementById('logout').addEventListener('click', () => signOut(auth));
+
+  async function ensureVendorProfile(user) {
+    const ref = doc(db, 'vendors', user.uid);
+    const snap = await getDoc(ref);
+    if (snap.exists()) return snap.data();
+    const fallbackName = user.displayName || (user.email ? user.email.split('@')[0] : 'Vendor');
+    const data = { username: fallbackName, email: user.email || '' };
+    await setDoc(ref, data);
+    return data;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      authView.style.display = 'none';
+      appView.style.display = 'flex';
+      const profile = await ensureVendorProfile(user);
+      const displayName = profile.username || user.displayName || user.email || 'Vendor';
+      welcome.textContent = `Welcome, ${displayName}`;
+      profileName.textContent = displayName;
+      profileEmail.textContent = user.email || '';
+      loadMeals();
+      loadOrders();
+    } else {
+      authView.style.display = 'block';
+      appView.style.display = 'none';
+    }
+  });
+
+  const mealsList = document.getElementById('meals-list');
+  const mealForm = document.getElementById('meal-form');
+  const mealId = document.getElementById('meal-id');
+  const mealName = document.getElementById('meal-name');
+  const mealDesc = document.getElementById('meal-desc');
+  const mealPrice = document.getElementById('meal-price');
+  document.getElementById('meal-cancel').addEventListener('click', () => { mealForm.reset(); mealId.value = ''; });
+
+  async function loadMeals() {
+    mealsList.innerHTML = '<p class="subtitle">Loading meals...</p>';
+    const snap = await getDocs(collection(db, 'meals'));
+    mealsList.innerHTML = '';
+    snap.forEach(d => {
+      const meal = d.data();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="flex" style="justify-content:space-between; align-items:flex-start;">
+          <div>
+            <div class="meal-name" style="font-size:1rem;">${meal.name || 'Untitled'}</div>
+            <div class="meal-desc">${meal.desc || ''}</div>
+            <div class="meal-price" style="margin-top:6px;">$${meal.price || '--'}</div>
+          </div>
+          <button class="btn-secondary" data-id="${d.id}">Edit</button>
+        </div>`;
+      card.querySelector('button').addEventListener('click', () => {
+        mealId.value = d.id;
+        mealName.value = meal.name || '';
+        mealDesc.value = meal.desc || '';
+        mealPrice.value = meal.price || '';
+      });
+      mealsList.appendChild(card);
+    });
+  }
+
+  mealForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = { name: mealName.value, desc: mealDesc.value, price: parseFloat(mealPrice.value || 0) };
+    if (mealId.value) {
+      await updateDoc(doc(db, 'meals', mealId.value), payload);
+    } else {
+      await addDoc(collection(db, 'meals'), payload);
+    }
+    mealForm.reset(); mealId.value = '';
+    loadMeals();
+  });
+
+  const ordersBody = document.getElementById('orders-body');
+  async function loadOrders() {
+    ordersBody.innerHTML = '<tr><td colspan="5" class="subtitle">placeholder</td></tr>';
+  }
+</script>
+</body>
+</html>
