@@ -1,0 +1,466 @@
+/* ---------------- RESET ---------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #1f1f1f;
+  transition: all 0.3s ease;
+}
+
+/* ---------------- AUTH PAGES ---------------- */
+.login-container,
+.register-container {
+  width: 360px;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.12);
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-container .app-title,
+.register-container .app-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.login-container h2,
+.register-container h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.login-container .input-field,
+.register-container .input-field {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.login-container .btn-primary,
+.register-container .btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.login-container .btn-primary:hover,
+.register-container .btn-primary:hover {
+  background: #3579c7;
+}
+
+.login-container .btn-google,
+.register-container .btn-google {
+  width: 100%;
+  padding: 12px;
+  background: #db4437;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.login-container .btn-google:hover,
+.register-container .btn-google:hover {
+  background: #c2362b;
+}
+
+.login-container .divider,
+.register-container .divider {
+  margin: 20px 0;
+  border-top: 1px solid #ddd;
+}
+
+.login-container a,
+.register-container a {
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.login-container a:hover,
+.register-container a:hover {
+  text-decoration: underline;
+}
+
+/* ---------------- DASHBOARD ---------------- */
+body.dashboard-body {
+  display: block;
+}
+
+.dashboard-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #1f2937;
+  color: white;
+  min-height: 100vh;
+  transition: width 0.3s;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.sidebar.expanded {
+  width: 240px;
+}
+
+.sidebar .toggle-btn {
+  margin-bottom: 2rem;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  font-size: 16px;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  font-size: 15px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background-color: grey;
+}
+
+.sidebar .navbar-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  font-size: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.sidebar .navbar-link:hover {
+  background-color: grey;
+}
+
+.sidebar .navbar-link.collapsed {
+  justify-content: center;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background: white;
+  color: #1f1f1f;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+/* ---------------- ABOUT PAGE ---------------- */
+.about-page .container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.about-page .page-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.about-page .section {
+  margin-bottom: 1.5rem;
+}
+
+.about-page .section-content {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #1f1f1f;
+}
+
+/* ---------------- CONTACT PAGE ---------------- */
+.contact-page {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.contact-page .container {
+  max-width: 800px;
+  width: 100%;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  background: #fff;
+}
+
+.contact-page .page-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.contact-page .section {
+  margin-bottom: 1.5rem;
+}
+
+.contact-page .section-content {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.contact-page .email-icon-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  color: black;
+  margin: 1.5rem auto 0;
+  text-decoration: none;
+}
+
+/* ---------------- SETTINGS PAGE ---------------- */
+.settings-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.settings-title {
+  font-size: 24px;
+  margin-bottom: 1.5rem;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.settings-item label {
+  font-size: 18px;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4a90e2;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+
+/* =========================================
+   DARK MODE — MAIN CONTENT AREA
+   Applies to all pages consistently
+   ========================================= */
+
+   body.dark-mode {
+    background-color: #121212 !important;
+    color: #eaeaea !important;
+  }
+  
+  /* Generic container used in most pages */
+  body.dark-mode .container,
+  body.dark-mode .main-content,
+  body.dark-mode main,
+  body.dark-mode .page-wrapper {
+    background-color: #1c1c1c !important;
+    color: #f5f5f5 !important;
+    border-color: #333 !important;
+  }
+  
+  /* Headings inside any page */
+  body.dark-mode h1,
+  body.dark-mode h2,
+  body.dark-mode h3,
+  body.dark-mode h4 {
+    color: #ffffff !important;
+  }
+  
+  /* Paragraphs, descriptions */
+  body.dark-mode p,
+  body.dark-mode .text,
+  body.dark-mode .description {
+    color: #e0e0e0 !important;
+  }
+  
+  /* Cards inside main content */
+  body.dark-mode .card {
+    background-color: #1e1e1e !important;
+    color: #f5f5f5 !important;
+    border-color: #333 !important;
+  }
+  
+  /* Inputs, text fields, checkboxes */
+  body.dark-mode input,
+  body.dark-mode textarea,
+  body.dark-mode select {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+    border-color: #444 !important;
+  }
+  
+  /* Buttons 
+  body.dark-mode button {
+    background-color: #333 !important;
+    color: #fff !important;
+    border-color: #555 !important;
+  }*/
+  
+  /* LINKS */
+  body.dark-mode a {
+    color: white !important;
+  }
+  
+  body.dark-mode .contact-page .container {
+    background-color: #1c1c1c !important;
+    color: #f5f5f5 !important;
+  }
+  
+  body.dark-mode .contact-page .section-content {
+    color: #e0e0e0 !important;
+  }
+  
+  body.dark-mode .page-title {
+    color: #fff !important;
+  }
+  
+  body.dark-mode .settings-container {
+    background-color: #1c1c1c !important;
+    color: #f5f5f5 !important;
+  }
+  
+  body.dark-mode .settings-item label {
+    color: #e8e8e8 !important;
+  }
+  
+  body.dark-mode .settings-title {
+    color: #ffffff !important;
+  }
+  
+  /* =========================================
+   DARK MODE — LOGIN & REGISTER CONTAINERS
+   ========================================= */
+
+body.dark-mode .login-container,
+body.dark-mode .register-container {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333 !important;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Headings */
+body.dark-mode .login-container h1,
+body.dark-mode .register-container h1 {
+  color: #ffffff !important;
+}
+
+/* Labels */
+body.dark-mode .login-container label,
+body.dark-mode .register-container label {
+  color: #eaeaea !important;
+}
+
+/* Inputs */
+body.dark-mode .login-container input,
+body.dark-mode .register-container input {
+  background-color: #2b2b2b !important;
+  color: #ffffff !important;
+  border: 1px solid #444 !important;
+}
+
+/* Links (Forgot password, register link, login link etc.) */
+body.dark-mode .login-container a,
+body.dark-mode .register-container a {
+  color: #80b3ff !important;
+}
+
+
