@@ -2,6 +2,10 @@
 frontend/.env
 backend/.env
 
+frontend/firebaseNode.js
+frontend/uploadreceipes.js
+frontend/recipes.json
+
 # --- Dependencies ---
 frontend/node_modules/
 backend/node_modules/
