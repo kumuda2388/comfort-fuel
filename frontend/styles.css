@@ -1,0 +1,307 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #fffaf5;
+    color: #333;
+}
+
+/* Layout */
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    background: #b3e5dc;
+    padding: 24px 16px;
+    border-right: 2px solid #a1d5cc;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #27635a;
+    margin-bottom: 24px;
+}
+
+.nav {
+    list-style: none;
+}
+
+.nav li {
+    margin-bottom: 10px;
+}
+
+.nav a {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #27635a;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.nav a.active {
+    background: #fff;
+    color: #2a7b6e;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav a:hover {
+    background: #c6f0e7;
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 30px 40px;
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #3b3b3b;
+}
+
+.subtitle {
+    font-size: .95rem;
+    color: #777;
+    margin-bottom: 24px;
+}
+
+.page-section {
+    display: none;
+}
+
+.page-section.active {
+    display: block;
+}
+
+/* Meal Cards */
+.meal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.meal-card {
+    background: #fff8f8;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 4px 8px rgba(255,182,193,0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #ffe1e6;
+    transition: transform .1s ease;
+}
+
+.meal-card:hover {
+    transform: translateY(-3px);
+}
+
+.meal-image-placeholder {
+    background: #ffd8de;
+    border-radius: 12px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #944a5b;
+    font-size: .9rem;
+}
+
+.meal-name {
+    font-weight: 600;
+    color: #5c3242;
+}
+
+.meal-desc {
+    font-size: .9rem;
+    color: #7b6068;
+}
+
+.meal-price {
+    font-weight: 600;
+    color: #944a5b;
+}
+
+select {
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid #ffd1dc;
+    background: #fff;
+    font-size: .9rem;
+}
+
+.btn-primary {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f47b9a;
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.btn-primary:hover {
+    background: #e35b82;
+}
+
+/* Orders Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff8f8;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+}
+
+.table th,
+.table td {
+    padding: 12px 14px;
+    font-size: .9rem;
+    border-bottom: 1px solid #ffe1e6;
+}
+
+.table th {
+    background: #ffeef2;
+    text-align: left;
+    color: #6d4754;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: .75rem;
+}
+
+.badge-pending {
+    background: #fff3cd;
+    color: #946200;
+}
+
+.badge-accepted {
+    background: #d1f7d0;
+    color: #237e23;
+}
+
+.badge-ready {
+    background: #cde7ff;
+    color: #19568f;
+}
+
+/* Cart + Profile Cards */
+.card {
+    background: #fff8f8;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 4px 8px rgba(255,182,193,0.25);
+    margin-bottom: 16px;
+    border: 1px solid #ffe1e6;
+}
+
+.cart-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: .9rem;
+}
+
+.cart-total {
+    font-weight: 600;
+    margin-top: 8px;
+    color: #5c3242;
+}
+
+.field-label {
+    font-size: .85rem;
+    color: #7b6068;
+    margin-bottom: 4px;
+}
+
+.field-value {
+    padding: 10px 12px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #ffd1dc;
+    margin-bottom: 12px;
+    font-size: .9rem;
+    color: #5c3242;
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0;
+}
+
+.fake-toggle {
+    width: 40px;
+    height: 20px;
+    border-radius: 999px;
+    background: #ffd1dc;
+    position: relative;
+}
+
+.fake-toggle::after {
+    content: "";
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.logout-btn {
+    margin-top: 16px;
+    background: #f47b9a;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: .9rem;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    background: #e35b82;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .layout {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #a1d5cc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .nav {
+        display: flex;
+        gap: 8px;
+    }
+    .nav li {
+        margin-bottom: 0;
+    }
+}

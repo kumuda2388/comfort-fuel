@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comfort Fuel</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">Comfort Fuel 🍱</div>
+        <ul class="nav">
+            <li><a class="nav-link active" data-section="home">Home</a></li>
+            <li><a class="nav-link" data-section="orders">Orders</a></li>
+            <li><a class="nav-link" data-section="cart">Cart</a></li>
+            <li><a class="nav-link" data-section="profile">Profile</a></li>
+        </ul>
+    </aside>
+
+    <main class="main">
+
+        <!-- HOME -->
+        <section id="home" class="page-section active">
+            <h1 class="page-title">Browse Meals</h1>
+            <p class="subtitle">Choose from comforting, home-cooked dishes made with love 💕</p>
+
+            <div class="meal-grid">
+                <article class="meal-card">
+                    <div class="meal-image-placeholder">🍛</div>
+                    <div class="meal-name">Chicken Biryani</div>
+                    <div class="meal-desc">Fragrant rice with spiced chicken.</div>
+                    <div class="meal-price">$10.99</div>
+                    <select><option>Size</option><option>Small</option><option>Large</option></select>
+                    <button class="btn-primary">Add to Cart</button>
+                </article>
+
+                <article class="meal-card">
+                    <div class="meal-image-placeholder">🥘</div>
+                    <div class="meal-name">Vegetable Curry</div>
+                    <div class="meal-desc">Creamy coconut base with veggies.</div>
+                    <div class="meal-price">$9.50</div>
+                    <select><option>Size</option><option>Single</option><option>Family</option></select>
+                    <button class="btn-primary">Add to Cart</button>
+                </article>
+
+                <article class="meal-card">
+                    <div class="meal-image-placeholder">🐟</div>
+                    <div class="meal-name">Grilled Salmon Bowl</div>
+                    <div class="meal-desc">Served with brown rice & veggies.</div>
+                    <div class="meal-price">$12.75</div>
+                    <select><option>Size</option><option>Regular</option><option>Large</option></select>
+                    <button class="btn-primary">Add to Cart</button>
+                </article>
+
+                <article class="meal-card">
+                    <div class="meal-image-placeholder">🍞</div>
+                    <div class="meal-name">Lentil Soup & Bread</div>
+                    <div class="meal-desc">Warm soup with artisan bread.</div>
+                    <div class="meal-price">$7.25</div>
+                    <select><option>Size</option><option>Cup</option><option>Bowl</option></select>
+                    <button class="btn-primary">Add to Cart</button>
+                </article>
+            </div>
+        </section>
+
+        <!-- ORDERS -->
+        <section id="orders" class="page-section">
+            <h1 class="page-title">My Orders</h1>
+            <p class="subtitle">Your recent meal orders 💌</p>
+
+            <table class="table">
+                <thead>
+                    <tr><th>#</th><th>Items</th><th>Date</th><th>Status</th><th>Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>#1024</td><td>Chicken Biryani</td><td>Nov 8</td><td><span class="badge badge-pending">Pending</span></td><td>$10.99</td></tr>
+                    <tr><td>#1023</td><td>Vegetable Curry</td><td>Nov 7</td><td><span class="badge badge-accepted">Accepted</span></td><td>$9.50</td></tr>
+                    <tr><td>#1022</td><td>Lentil Soup & Bread</td><td>Nov 5</td><td><span class="badge badge-ready">Ready</span></td><td>$7.25</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- CART -->
+        <section id="cart" class="page-section">
+            <h1 class="page-title">Your Cart</h1>
+            <p class="subtitle">Almost ready to eat! 🛒</p>
+
+            <div class="card">
+                <div class="cart-row"><span>Chicken Biryani</span><span>$10.99</span></div>
+                <div class="cart-row"><span>Vegetable Curry</span><span>$9.50</span></div>
+                <div class="cart-row"><span>Lentil Soup</span><span>$7.25</span></div>
+                <div class="cart-total">Total: $27.74</div>
+                <button class="btn-primary" style="margin-top:12px;">Place Order</button>
+            </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section id="profile" class="page-section">
+            <h1 class="page-title">Profile & Settings</h1>
+            <p class="subtitle">Your account preferences 🌸</p>
+
+            <div class="card">
+                <div class="field-label">Name</div>
+                <div class="field-value">Jane Doe</div>
+
+                <div class="field-label">Email</div>
+                <div class="field-value">janedoe@example.com</div>
+
+                <div class="toggle-row">
+                    <span>Dark Mode</span>
+                    <div class="fake-toggle"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <span>Order Notifications</span>
+                    <div class="fake-toggle"></div>
+                </div>
+
+                <button class="logout-btn">Logout</button>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.page-section');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            const id = link.dataset.section;
+
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            sections.forEach(sec => sec.classList.toggle('active', sec.id === id));
+        });
+    });
+</script>
+
+</body>
+</html>
