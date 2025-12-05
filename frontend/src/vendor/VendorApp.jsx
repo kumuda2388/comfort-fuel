@@ -252,9 +252,6 @@ export default function VendorApp() {
           <div className="logo-title">Comfort Fuel</div>
           <div className="logo-sub">Vendor Portal</div>
         </div>
-        <p className="subtitle" style={{ marginBottom: 10 }}>
-          Sign up or log in to manage meals, orders, chats, and analytics.
-        </p>
         <div className="auth-tabs">
           <button
             className={`auth-tab ${authMode === "login" ? "active" : ""}`}

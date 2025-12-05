@@ -474,6 +474,30 @@ body.dark-mode .page-wrapper {
   border-color: #333 !important;
 }
 
+/* Vendor login auth styles in dark mode */
+body.dark-mode .auth-container {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark-mode .auth-container .logo-title,
+body.dark-mode .auth-container .logo-sub,
+body.dark-mode .auth-container .subtitle {
+  color: #ffffff !important;
+}
+
+body.dark-mode .auth-container input {
+  background-color: #2b2b2b !important;
+  color: #ffffff !important;
+  border: 1px solid #444 !important;
+}
+
+body.dark-mode .auth-container a.portal-link {
+  color: #80b3ff !important;
+}
+
 body.dark-mode h1,
 body.dark-mode h2,
 body.dark-mode h3,
