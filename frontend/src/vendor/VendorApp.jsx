@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "./vendorStyles.css";
 import { auth, db, googleProvider } from "../firebase";
@@ -22,6 +22,7 @@ import {
 
 export default function VendorApp() {
   const [section, setSection] = useState("home");
+  const formRef = useRef(null);
   const [darkMode, setDarkMode] = useState(false);
   const [notify, setNotify] = useState(false);
   const [authMode, setAuthMode] = useState("login");
@@ -215,6 +216,12 @@ export default function VendorApp() {
         : [{ name: "", amount: "", customizable: false }]
     );
     setSection("recipes");
+    // scroll to form for quick editing
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 0);
   }
 
   async function ensureVendorProfile(currentUser) {
@@ -452,7 +459,7 @@ export default function VendorApp() {
               ))}
             </div>
             <h4 style={{ marginTop: 18 }}>{editId ? "Edit Recipe" : "Add Recipe"}</h4>
-            <form className="stack-vert" onSubmit={handleRecipeSubmit}>
+            <form className="stack-vert" onSubmit={handleRecipeSubmit} ref={formRef}>
               <input
                 placeholder="Recipe title"
                 value={recipeTitle}
