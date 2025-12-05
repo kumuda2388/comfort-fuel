@@ -313,6 +313,26 @@ a {
   margin-top: 4px;
 }
 
+.inline-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  margin-top: 14px;
+}
+
+.inline-remove {
+  margin-top: 14px;
+}
+
+.inline-checkbox input {
+  margin: 0;
+}
+
+.inline-checkbox span {
+  margin: 0;
+}
+
 .card textarea {
   min-height: 100px;
   resize: vertical;

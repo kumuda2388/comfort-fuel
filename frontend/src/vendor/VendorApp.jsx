@@ -524,7 +524,8 @@ export default function VendorApp() {
                         setIngredients(next);
                       }}
                     />
-                    <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div className="inline-checkbox">
+                      <span>Customizable</span>
                       <input
                         type="checkbox"
                         checked={!!ing.customizable}
@@ -534,19 +535,19 @@ export default function VendorApp() {
                           setIngredients(next);
                         }}
                       />
-                      Customizable
-                    </label>
-                    <button
-                      className="btn-secondary"
-                      type="button"
-                      onClick={() => {
-                        const next = ingredients.filter((_, i) => i !== idx);
-                        setIngredients(next.length ? next : [{ name: "", amount: "", customizable: false }]);
-                      }}
-                      style={{ marginTop: 8 }}
-                    >
-                      Remove
-                    </button>
+                    </div>
+                    <div className="inline-remove">
+                      <button
+                        className="btn-secondary"
+                        type="button"
+                        onClick={() => {
+                          const next = ingredients.filter((_, i) => i !== idx);
+                          setIngredients(next.length ? next : [{ name: "", amount: "", customizable: false }]);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ))}
                 <button
