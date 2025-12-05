@@ -125,6 +125,13 @@ function Login() {
       <Link to="/change-password">Change Password?</Link>
     </p>
 
+      <p style={{ marginTop: "10px" }}>
+        Are you a vendor?{" "}
+        <Link className="portal-link" to="/vendor">
+          Go to vendor portal
+        </Link>
+      </p>
+
     </div>
   );
 }

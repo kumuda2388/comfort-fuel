@@ -13,6 +13,7 @@ import Settings from "./components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Contact from "./components/Contact";
 import { AuthProvider } from "./Context/AuthContext";
+import VendorApp from "./vendor/VendorApp";
 
 function App() {
   
@@ -48,13 +49,15 @@ function App() {
             <Route path="chats" element={<Chats />} />
             <Route path="recipes" element={<Recipes />} />
             <Route path="about" element={<About />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="contact" element={<Contact />} />
-          </Route>
+          <Route path="settings" element={<Settings />} />
+          <Route path="contact" element={<Contact />} />
+        </Route>
 
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+        <Route path="/vendor" element={<VendorApp />} />
+
+      </Routes>
+    </BrowserRouter>
+  </AuthProvider>
   );
 }
 
