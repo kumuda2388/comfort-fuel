@@ -48,14 +48,19 @@ function Navbar({ isOpen, toggleSidebar }) {
           <FaComments /> {isOpen && <span>Chats</span>}
         </NavLink>
 
-        <NavLink to="/dashboardLayout/recipes" className={({ isActive }) => (isActive ? "active" : "")}>
-          <FaBook /> {isOpen && <span>Catalogue</span>}
-        </NavLink>
+ {/*
+<NavLink 
+  to="/dashboardLayout/recipes" 
+  className={({ isActive }) => (isActive ? "active" : "")}
+>
+  <FaBook /> {isOpen && <span>Catalogue</span>}
+</NavLink>
+*/}
 
         <NavLink to="/dashboardLayout/about" className={({ isActive }) => (isActive ? "active" : "")}>
         <FaInfoCircle /> {isOpen && <span>About</span>}
 </NavLink>
-{/* New Contact/Feedback link */}
+
 <NavLink to="/dashboardLayout/contact" className={({ isActive }) => (isActive ? "active" : "")}>
           <FaEnvelope /> {isOpen && <span>Contact</span>}
         </NavLink>
