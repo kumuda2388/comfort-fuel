@@ -634,13 +634,13 @@ export default function VendorApp() {
           </div>
           <div className="card">
             <div className="field-label">Name</div>
-            <div className="field-value">{profileName || "—"}</div>
+            <div className="field-value">{profileName || "Vendor"}</div>
 
             <div className="field-label">Email</div>
-            <div className="field-value">{profileEmail || "—"}</div>
+            <div className="field-value">{profileEmail || "Not provided"}</div>
 
             <div className="toggle-row">
-              <span>Dark Mode 🌙</span>
+              <span>Dark Mode</span>
               <div
                 className={`fake-toggle ${darkMode ? "on" : ""}`}
                 onClick={() => setDarkMode(!darkMode)}
@@ -649,7 +649,7 @@ export default function VendorApp() {
             </div>
 
             <div className="toggle-row">
-              <span>Order Notifications 🔔</span>
+              <span>Order Notifications</span>
               <div
                 className={`fake-toggle ${notify ? "on" : ""}`}
                 onClick={() => setNotify(!notify)}
@@ -664,3 +664,4 @@ export default function VendorApp() {
     </div>
   );
 }
+
