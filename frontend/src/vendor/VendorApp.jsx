@@ -18,7 +18,9 @@ import {
   doc,
   setDoc,
   getDoc,
+  deleteDoc,
 } from "firebase/firestore";
+import { FaHome, FaUtensils, FaClipboardList, FaComments, FaUser, FaSignOutAlt } from "react-icons/fa";
 
 export default function VendorApp() {
   const [section, setSection] = useState("home");
@@ -216,12 +218,27 @@ export default function VendorApp() {
         : [{ name: "", amount: "", customizable: false }]
     );
     setSection("recipes");
-    // scroll to form for quick editing
-    setTimeout(() => {
-      if (formRef.current) {
-        formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function handleDeleteRecipe(id) {
+    if (!id) return;
+    const confirmDelete = window.confirm("Delete this recipe?");
+    if (!confirmDelete) return;
+    setRecipesError("");
+    try {
+      await deleteDoc(doc(db, "recipes", id));
+      if (editId === id) {
+        setEditId(null);
+        setRecipeTitle("");
+        setRecipeDesc("");
+        setRecipeImage("");
+        setSizes({ small: "", medium: "", large: "" });
+        setIngredients([{ name: "", amount: "", customizable: false }]);
       }
-    }, 0);
+      await loadRecipes();
+    } catch (err) {
+      setRecipesError("Failed to delete recipe");
+    }
   }
 
   async function ensureVendorProfile(currentUser) {
@@ -335,33 +352,39 @@ export default function VendorApp() {
         <ul className="nav">
           <li>
             <a className={navClass("home")} onClick={(e) => { e.preventDefault(); setSection("home"); }}>
-              Home
+              <FaHome className="nav-icon" />
+              <span>Home</span>
             </a>
           </li>
           <li>
             <a className={navClass("recipes")} onClick={(e) => { e.preventDefault(); setSection("recipes"); }}>
-              Recipes
+              <FaUtensils className="nav-icon" />
+              <span>Recipes</span>
             </a>
           </li>
           <li>
             <a className={navClass("orders")} onClick={(e) => { e.preventDefault(); setSection("orders"); }}>
-              Orders
+              <FaClipboardList className="nav-icon" />
+              <span>Orders</span>
             </a>
           </li>
           <li>
             <a className={navClass("chats")} onClick={(e) => { e.preventDefault(); setSection("chats"); }}>
-              Chats
-            </a>
-          </li>
-          <li>
-            <a className={navClass("analytics")} onClick={(e) => { e.preventDefault(); setSection("analytics"); }}>
-              Analytics
+              <FaComments className="nav-icon" />
+              <span>Chats</span>
             </a>
           </li>
           <li>
             <a className={navClass("profile")} onClick={(e) => { e.preventDefault(); setSection("profile"); }}>
-              Profile
+              <FaUser className="nav-icon" />
+              <span>Profile</span>
             </a>
+          </li>
+          <li className="nav-logout">
+            <button className="nav-link" type="button" onClick={handleLogout}>
+              <FaSignOutAlt className="nav-icon" />
+              <span>Logout</span>
+            </button>
           </li>
         </ul>
       </aside>
@@ -406,176 +429,314 @@ export default function VendorApp() {
             </div>
             {recipesLoading && <p className="subtitle">Loading recipes...</p>}
             {recipesError && <p className="error-text">{recipesError}</p>}
-            <div id="recipes-list">
-              {recipes.map((m) => (
-                <div className="card" key={m.id}>
-                  <div className="flex" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div>
-                      <div className="meal-name" style={{ fontSize: "1rem" }}>{m.title}</div>
-                      <div className="meal-desc">{m.description}</div>
-                      {m.image && (
-                        <div style={{ marginTop: 8 }}>
-                          <img
-                            src={m.image}
-                            alt={m.name}
-                            style={{
-                              maxWidth: "100%",
-                              maxHeight: "220px",
-                              width: "100%",
-                              height: "auto",
-                              objectFit: "contain",
-                              borderRadius: 8,
-                            }}
-                          />
-                        </div>
-                      )}
-                      <div className="meal-desc" style={{ marginTop: 6 }}>
-                        <strong>Sizes:</strong>{" "}
-                        {["small", "medium", "large"]
-                          .filter((key) => m.sizes?.[key] !== undefined && m.sizes?.[key] !== "")
-                          .map((key) => `${key}: ${formatPrice(m.sizes[key])}`)
-                          .join("  ")}
-                      </div>
-                      {m.ingredients && m.ingredients.length > 0 && (
+            <div className="recipes-content">
+              <div id="recipes-list" className="recipes-list">
+                {recipes.map((m) => (
+                  <div className="card" key={m.id}>
+                    <div className="flex" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <div>
+                        <div className="meal-name" style={{ fontSize: "1rem" }}>{m.title}</div>
+                        <div className="meal-desc">{m.description}</div>
+                        {m.image && (
+                          <div style={{ marginTop: 8 }}>
+                            <img
+                              src={m.image}
+                              alt={m.name}
+                              style={{
+                                maxWidth: "100%",
+                                maxHeight: "220px",
+                                width: "100%",
+                                height: "auto",
+                                objectFit: "contain",
+                                borderRadius: 8,
+                              }}
+                            />
+                          </div>
+                        )}
                         <div className="meal-desc" style={{ marginTop: 6 }}>
-                          <strong>Ingredients:</strong>{" "}
-                          {m.ingredients
-                            .map((ing) => {
-                              const base = `${ing.name || "Item"} (${ing.amount || ""})`;
-                              return ing.customizable ? `${base}*` : base;
-                            })
-                            .join(", ")}
+                          <strong>Sizes:</strong>{" "}
+                          {["small", "medium", "large"]
+                            .filter((key) => m.sizes?.[key] !== undefined && m.sizes?.[key] !== "")
+                            .map((key) => `${key}: ${formatPrice(m.sizes[key])}`)
+                            .join("  ")}
                         </div>
-                      )}
+                        {m.ingredients && m.ingredients.length > 0 && (
+                          <div className="meal-desc" style={{ marginTop: 6 }}>
+                            <strong>Ingredients:</strong>{" "}
+                            {m.ingredients
+                              .map((ing) => {
+                                const base = `${ing.name || "Item"} (${ing.amount || ""})`;
+                                return ing.customizable ? `${base}*` : base;
+                              })
+                              .join(", ")}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex" style={{ gap: 8 }}>
+                        <button className="btn-secondary" type="button" onClick={() => startEdit(m)}>
+                          Edit
+                        </button>
+                        <button className="btn-secondary" type="button" onClick={() => handleDeleteRecipe(m.id)}>
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                    <button className="btn-secondary" type="button" onClick={() => startEdit(m)}>
-                      Edit
-                    </button>
                   </div>
-                </div>
-              ))}
-            </div>
-            <h4 style={{ marginTop: 18 }}>{editId ? "Edit Recipe" : "Add Recipe"}</h4>
-            <form className="stack-vert" onSubmit={handleRecipeSubmit} ref={formRef}>
-              <input
-                placeholder="Recipe title"
-                value={recipeTitle}
-                onChange={(e) => setRecipeTitle(e.target.value)}
-                required
-              />
-              <textarea
-                placeholder="Description"
-                value={recipeDesc}
-                onChange={(e) => setRecipeDesc(e.target.value)}
-                required
-              ></textarea>
-              <input
-                type="text"
-                placeholder="Image URL (optional)"
-                value={recipeImage}
-                onChange={(e) => setRecipeImage(e.target.value)}
-              />
-              <div className="stack-vert">
-                <label className="field-label">Sizes (price)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Small price"
-                  value={sizes.small}
-                  onChange={(e) => setSizes({ ...sizes, small: e.target.value })}
-                />
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Medium price"
-                  value={sizes.medium}
-                  onChange={(e) => setSizes({ ...sizes, medium: e.target.value })}
-                />
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Large price"
-                  value={sizes.large}
-                  onChange={(e) => setSizes({ ...sizes, large: e.target.value })}
-                />
+                ))}
               </div>
-              <div className="stack-vert">
-                <div className="field-label">Ingredients</div>
-                {ingredients.map((ing, idx) => (
-                  <div className="card" key={idx} style={{ padding: 12, marginTop: 6 }}>
+
+              {editId && (
+                <div className="card edit-panel">
+                  <h4>Edit Recipe</h4>
+                  <form className="stack-vert" onSubmit={handleRecipeSubmit}>
                     <input
-                      placeholder="Name"
-                      value={ing.name}
-                      onChange={(e) => {
-                        const next = [...ingredients];
-                        next[idx].name = e.target.value;
-                        setIngredients(next);
-                      }}
+                      placeholder="Recipe title"
+                      value={recipeTitle}
+                      onChange={(e) => setRecipeTitle(e.target.value)}
+                      required
                     />
+                    <textarea
+                      placeholder="Description"
+                      value={recipeDesc}
+                      onChange={(e) => setRecipeDesc(e.target.value)}
+                      required
+                    ></textarea>
                     <input
-                      placeholder="Amount (e.g., 50g)"
-                      value={ing.amount}
-                      onChange={(e) => {
-                        const next = [...ingredients];
-                        next[idx].amount = e.target.value;
-                        setIngredients(next);
-                      }}
+                      type="text"
+                      placeholder="Image URL (optional)"
+                      value={recipeImage}
+                      onChange={(e) => setRecipeImage(e.target.value)}
                     />
-                    <div className="inline-checkbox">
-                      <span>Customizable</span>
+                    <div className="stack-vert">
+                      <label className="field-label">Sizes (price)</label>
                       <input
-                        type="checkbox"
-                        checked={!!ing.customizable}
-                        onChange={(e) => {
-                          const next = [...ingredients];
-                          next[idx].customizable = e.target.checked;
-                          setIngredients(next);
-                        }}
+                        type="number"
+                        step="0.01"
+                        placeholder="Small price"
+                        value={sizes.small}
+                        onChange={(e) => setSizes({ ...sizes, small: e.target.value })}
+                      />
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="Medium price"
+                        value={sizes.medium}
+                        onChange={(e) => setSizes({ ...sizes, medium: e.target.value })}
+                      />
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="Large price"
+                        value={sizes.large}
+                        onChange={(e) => setSizes({ ...sizes, large: e.target.value })}
                       />
                     </div>
-                    <div className="inline-remove">
+                    <div className="stack-vert">
+                      <div className="field-label">Ingredients</div>
+                      {ingredients.map((ing, idx) => (
+                        <div className="card" key={idx} style={{ padding: 12, marginTop: 6 }}>
+                          <input
+                            placeholder="Name"
+                            value={ing.name}
+                            onChange={(e) => {
+                              const next = [...ingredients];
+                              next[idx].name = e.target.value;
+                              setIngredients(next);
+                            }}
+                          />
+                          <input
+                            placeholder="Amount (e.g., 50g)"
+                            value={ing.amount}
+                            onChange={(e) => {
+                              const next = [...ingredients];
+                              next[idx].amount = e.target.value;
+                              setIngredients(next);
+                            }}
+                          />
+                          <div className="inline-checkbox">
+                            <span>Customizable</span>
+                            <input
+                              type="checkbox"
+                              checked={!!ing.customizable}
+                              onChange={(e) => {
+                                const next = [...ingredients];
+                                next[idx].customizable = e.target.checked;
+                                setIngredients(next);
+                              }}
+                            />
+                          </div>
+                          <div className="inline-remove">
+                            <button
+                              className="btn-secondary"
+                              type="button"
+                              onClick={() => {
+                                const next = ingredients.filter((_, i) => i !== idx);
+                                setIngredients(next.length ? next : [{ name: "", amount: "", customizable: false }]);
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      <button
+                        className="btn-secondary"
+                        type="button"
+                        onClick={() =>
+                          setIngredients([...ingredients, { name: "", amount: "", customizable: false }])
+                        }
+                        style={{ marginTop: 6 }}
+                      >
+                        Add Ingredient
+                      </button>
+                    </div>
+                    <div className="flex" style={{ gap: 10 }}>
+                      <button className="btn-primary" type="submit">Update Recipe</button>
                       <button
                         className="btn-secondary"
                         type="button"
                         onClick={() => {
-                          const next = ingredients.filter((_, i) => i !== idx);
-                          setIngredients(next.length ? next : [{ name: "", amount: "", customizable: false }]);
+                          setEditId(null);
+                          setRecipeTitle("");
+                          setRecipeDesc("");
+                          setRecipeImage("");
+                          setSizes({ small: "", medium: "", large: "" });
+                          setIngredients([{ name: "", amount: "", customizable: false }]);
                         }}
                       >
-                        Remove
+                        Cancel
                       </button>
                     </div>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            {!editId && (
+              <>
+                <h4 style={{ marginTop: 18 }}>Add Recipe</h4>
+                <form className="stack-vert" onSubmit={handleRecipeSubmit} ref={formRef}>
+                  <input
+                    placeholder="Recipe title"
+                    value={recipeTitle}
+                    onChange={(e) => setRecipeTitle(e.target.value)}
+                    required
+                  />
+                  <textarea
+                    placeholder="Description"
+                    value={recipeDesc}
+                    onChange={(e) => setRecipeDesc(e.target.value)}
+                    required
+                  ></textarea>
+                  <input
+                    type="text"
+                    placeholder="Image URL (optional)"
+                    value={recipeImage}
+                    onChange={(e) => setRecipeImage(e.target.value)}
+                  />
+                  <div className="stack-vert">
+                    <label className="field-label">Sizes (price)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="Small price"
+                      value={sizes.small}
+                      onChange={(e) => setSizes({ ...sizes, small: e.target.value })}
+                    />
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="Medium price"
+                      value={sizes.medium}
+                      onChange={(e) => setSizes({ ...sizes, medium: e.target.value })}
+                    />
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="Large price"
+                      value={sizes.large}
+                      onChange={(e) => setSizes({ ...sizes, large: e.target.value })}
+                    />
                   </div>
-                ))}
-                <button
-                  className="btn-secondary"
-                  type="button"
-                  onClick={() =>
-                    setIngredients([...ingredients, { name: "", amount: "", customizable: false }])
-                  }
-                  style={{ marginTop: 6 }}
-                >
-                  Add Ingredient
-                </button>
-              </div>
-              <div className="flex" style={{ gap: 10 }}>
-                <button className="btn-primary" type="submit">Save Recipe</button>
-                <button
-                  className="btn-secondary"
-                  type="button"
-                  onClick={() => {
-                    setEditId(null);
-                    setRecipeTitle("");
-                    setRecipeDesc("");
-                    setRecipeImage("");
-                    setSizes({ small: "", medium: "", large: "" });
-                    setIngredients([{ name: "", amount: "", customizable: false }]);
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+                  <div className="stack-vert">
+                    <div className="field-label">Ingredients</div>
+                    {ingredients.map((ing, idx) => (
+                      <div className="card" key={idx} style={{ padding: 12, marginTop: 6 }}>
+                        <input
+                          placeholder="Name"
+                          value={ing.name}
+                          onChange={(e) => {
+                            const next = [...ingredients];
+                            next[idx].name = e.target.value;
+                            setIngredients(next);
+                          }}
+                        />
+                        <input
+                          placeholder="Amount (e.g., 50g)"
+                          value={ing.amount}
+                          onChange={(e) => {
+                            const next = [...ingredients];
+                            next[idx].amount = e.target.value;
+                            setIngredients(next);
+                          }}
+                        />
+                        <div className="inline-checkbox">
+                          <span>Customizable</span>
+                          <input
+                            type="checkbox"
+                            checked={!!ing.customizable}
+                            onChange={(e) => {
+                              const next = [...ingredients];
+                              next[idx].customizable = e.target.checked;
+                              setIngredients(next);
+                            }}
+                          />
+                        </div>
+                        <div className="inline-remove">
+                          <button
+                            className="btn-secondary"
+                            type="button"
+                            onClick={() => {
+                              const next = ingredients.filter((_, i) => i !== idx);
+                              setIngredients(next.length ? next : [{ name: "", amount: "", customizable: false }]);
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <button
+                      className="btn-secondary"
+                      type="button"
+                      onClick={() =>
+                        setIngredients([...ingredients, { name: "", amount: "", customizable: false }])
+                      }
+                      style={{ marginTop: 6 }}
+                    >
+                      Add Ingredient
+                    </button>
+                  </div>
+                  <div className="flex" style={{ gap: 10 }}>
+                    <button className="btn-primary" type="submit">Save Recipe</button>
+                    <button
+                      className="btn-secondary"
+                      type="button"
+                      onClick={() => {
+                        setEditId(null);
+                        setRecipeTitle("");
+                        setRecipeDesc("");
+                        setRecipeImage("");
+                        setSizes({ small: "", medium: "", large: "" });
+                        setIngredients([{ name: "", amount: "", customizable: false }]);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </section>
 
@@ -584,11 +745,11 @@ export default function VendorApp() {
             <h1 className="page-title">My Orders</h1>
             <p className="subtitle">Track incoming orders and status.</p>
           </div>
-          <div className="card">
+          <div className="card orders-card">
             <div className="flex" style={{ justifyContent: "space-between", marginBottom: 10 }}>
               <span className="badge badge-pending">Live</span>
             </div>
-            <table className="table">
+            <table className="table orders-table">
               <thead>
                 <tr><th>ID</th><th>Items</th><th>Status</th><th>Total</th><th>Action</th></tr>
               </thead>
@@ -611,16 +772,6 @@ export default function VendorApp() {
           <div style={{ marginBottom: 16 }}>
             <h1 className="page-title">My Chats</h1>
             <p className="subtitle">Conversations with customers.</p>
-          </div>
-          <div className="card">
-            <p className="subtitle">placeholder</p>
-          </div>
-        </section>
-
-        <section id="analytics" className={show("analytics")}>
-          <div style={{ marginBottom: 16 }}>
-            <h1 className="page-title">My Analytics</h1>
-            <p className="subtitle">Performance and trends.</p>
           </div>
           <div className="card">
             <p className="subtitle">placeholder</p>
@@ -657,11 +808,9 @@ export default function VendorApp() {
               ></div>
             </div>
 
-            <button className="logout-btn" type="button" onClick={handleLogout}>Logout</button>
           </div>
         </section>
       </main>
     </div>
   );
 }
-

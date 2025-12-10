@@ -207,10 +207,17 @@ a {
 .nav {
   list-style: none;
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .nav li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
+}
+
+.nav-logout {
+  margin-top: auto;
 }
 
 .nav-link {
@@ -224,6 +231,25 @@ a {
   font-size: 15px;
   cursor: pointer;
   transition: background 0.2s ease;
+}
+
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+button.nav-link {
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+button.nav-link:focus {
+  outline: none;
 }
 
 .nav-link:hover,
@@ -267,6 +293,35 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
   margin-top: 12px;
+}
+
+.recipes-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.recipes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-panel {
+  position: sticky;
+  top: 12px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+@media (max-width: 992px) {
+  .recipes-content {
+    grid-template-columns: 1fr;
+  }
+  .edit-panel {
+    position: static;
+  }
 }
 
 .metric-card {
@@ -358,6 +413,7 @@ a {
 .table td {
   padding: 12px 14px;
   font-size: 0.9rem;
+  color: #1f2937;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -365,6 +421,27 @@ a {
   background: #f3f4f6;
   text-align: left;
   color: #1f2937;
+}
+
+.orders-card {
+  color: #1f2937;
+}
+
+.orders-card .orders-table th,
+.orders-card .orders-table td {
+  color: #0b172a;
+  background: #ffffff;
+}
+
+body.dark-mode .orders-card {
+  background: #ffffff !important;
+  color: #0b172a !important;
+}
+
+body.dark-mode .orders-card .orders-table th,
+body.dark-mode .orders-card .orders-table td {
+  color: #0b172a !important;
+  background: #ffffff !important;
 }
 
 .badge {
@@ -392,6 +469,11 @@ a {
   font-size: 0.9rem;
   color: #4b5563;
   margin-bottom: 4px;
+}
+
+body.dark-mode .field-label,
+body.dark-mode .edit-panel h4 {
+  color: #ffffff !important;
 }
 
 .field-value {
@@ -468,10 +550,16 @@ body.dark-mode .auth-container,
 body.dark-mode .card,
 body.dark-mode .main,
 body.dark-mode .container,
-body.dark-mode .page-wrapper {
-  background-color: #1c1c1c !important;
-  color: #f5f5f5 !important;
-  border-color: #333 !important;
+body.dark-mode .page-wrapper,
+body.dark-mode .metric-card {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+body.dark-mode .metric-card .metric-label,
+body.dark-mode .metric-card .metric-value {
+  color: #ffffff !important;
 }
 
 /* Vendor login auth styles in dark mode */
@@ -509,11 +597,16 @@ body.dark-mode p,
 body.dark-mode .text,
 body.dark-mode .description,
 body.dark-mode .subtitle {
-  color: #e0e0e0 !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode .main {
+  color: #ffffff !important;
 }
 
 body.dark-mode .card {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6) !important;
+  background: #1a2332 !important;
 }
 
 body.dark-mode input,
@@ -533,9 +626,18 @@ body.dark-mode .sidebar {
   color: #eaeaea !important;
 }
 
+body.dark-mode .nav-link,
+body.dark-mode .nav-link .nav-icon {
+  color: #eaeaea !important;
+}
+
 body.dark-mode .nav-link:hover,
 body.dark-mode .nav-link.active {
   background: #1f2a3b !important;
+}
+
+body.dark-mode .card .meal-desc {
+  color: #ffffff !important;
 }
 
 body.dark-mode .fake-toggle {
