@@ -20,7 +20,44 @@ function Recipes() {
     const fetchRecipes = async () => {
       const recipesCol = collection(db, "recipes");
       const recipeSnapshot = await getDocs(recipesCol);
-      const recipeList = recipeSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      let recipeList = recipeSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+      // Backfill vendor names when missing by looking up users collection
+      const vendorMap = {};
+      const missing = recipeList
+        .filter((r) => !r.vendorName && r.vendorId)
+        .map((r) => r.vendorId);
+      const uniqueMissing = [...new Set(missing)];
+
+      await Promise.all(
+        uniqueMissing.map(async (vid) => {
+          try {
+            const snap = await getDoc(doc(db, "users", vid));
+            if (snap.exists()) {
+              const u = snap.data();
+              vendorMap[vid] =
+                u.first_name ||
+                u.name ||
+                u.displayName ||
+                u.googleDisplayName ||
+                u.email ||
+                vid;
+            }
+          } catch (err) {
+            vendorMap[vid] = vid;
+          }
+        })
+      );
+
+      recipeList = recipeList.map((r) => ({
+        ...r,
+        vendorName:
+          r.vendorName ||
+          vendorMap[r.vendorId] ||
+          r.vendorId ||
+          "Vendor",
+      }));
+
       setRecipes(recipeList);
       setFilteredRecipes(recipeList);
     };

@@ -297,6 +297,8 @@ export default function VendorApp() {
         image: d.data().image || d.data().imageUrl || "",
         sizes: d.data().sizes || { small: "", medium: "", large: "" },
         ingredients: d.data().ingredients || [],
+        vendorName: d.data().vendorName || "Vendor",
+        vendorId: d.data().vendorId || "",
       }));
       const sorted = list.sort((a, b) =>
         (a.title || "").localeCompare(b.title || "", undefined, { sensitivity: "base" })
@@ -329,6 +331,8 @@ export default function VendorApp() {
             amount: ing.amount || "",
             customizable: !!ing.customizable,
           })),
+        vendorName: profileName || user?.displayName || user?.email || "Vendor",
+        vendorId: user?.uid || "",
       };
 
       if (editId) {
