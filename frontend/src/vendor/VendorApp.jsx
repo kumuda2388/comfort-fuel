@@ -63,6 +63,8 @@ export default function VendorApp() {
   const [vendorOrders, setVendorOrders] = useState([]);
   const [vendorOrdersLoading, setVendorOrdersLoading] = useState(true);
   const [vendorOrdersError, setVendorOrdersError] = useState("");
+  const [orderActionPrompt, setOrderActionPrompt] = useState(null);
+  const [orderActionMessage, setOrderActionMessage] = useState("");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -242,6 +244,55 @@ export default function VendorApp() {
       }
     };
   }, [selectedChatId]);
+
+  const isToday = (date) => {
+    if (!date) return false;
+    const d = date.toDate ? date.toDate() : new Date(date);
+    const now = new Date();
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    );
+  };
+
+  const acceptedToday = vendorOrders.filter((o) => {
+    const status = o.status;
+    const normalized = status === "ordered" || !status ? "Pending" : status;
+    const ts = o.updatedAt || o.createdAt;
+    return normalized === "Accepted" && isToday(ts);
+  });
+
+  const ordersTodayCount = acceptedToday.length;
+
+  const revenueToday = acceptedToday.reduce((sum, order) => {
+    if (!Array.isArray(order.items)) return sum;
+    const itemsTotal = order.items.reduce((sub, item) => {
+      const qty = item.quantity || 1;
+      const price = Number(item.price) || 0;
+      return sub + price * qty;
+    }, 0);
+    return sum + itemsTotal;
+  }, 0);
+
+  const topMealMap = acceptedToday.reduce((map, order) => {
+    if (!Array.isArray(order.items)) return map;
+    order.items.forEach((item) => {
+      const key = item.title || item.name || item.recipeTitle || "Item";
+      const qty = item.quantity || 1;
+      map[key] = (map[key] || 0) + qty;
+    });
+    return map;
+  }, {});
+
+  let topMealsDisplay = "--";
+  if (Object.keys(topMealMap).length) {
+    const max = Math.max(...Object.values(topMealMap));
+    const meals = Object.entries(topMealMap)
+      .filter(([, count]) => count === max)
+      .map(([name]) => name);
+    topMealsDisplay = meals.join(", ");
+  }
 
   const navClass = (id) => `nav-link ${section === id ? "active" : ""}`;
   const show = (id) => `page-section ${section === id ? "active" : ""}`;
@@ -639,19 +690,15 @@ export default function VendorApp() {
           <div className="metrics">
             <div className="metric-card">
               <div className="metric-label">Orders today</div>
-              <div className="metric-value" id="metric-orders">--</div>
+              <div className="metric-value" id="metric-orders">{ordersTodayCount}</div>
             </div>
             <div className="metric-card">
               <div className="metric-label">Revenue today</div>
-              <div className="metric-value" id="metric-revenue">$--</div>
-            </div>
-            <div className="metric-card">
-              <div className="metric-label">Live chats</div>
-              <div className="metric-value" id="metric-chats">--</div>
+              <div className="metric-value" id="metric-revenue">${revenueToday.toFixed(2)}</div>
             </div>
             <div className="metric-card">
               <div className="metric-label">Top meal (7d)</div>
-              <div className="metric-value" id="metric-top">--</div>
+              <div className="metric-value" id="metric-top">{topMealsDisplay}</div>
             </div>
           </div>
         </section>
