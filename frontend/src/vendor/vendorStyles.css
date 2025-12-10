@@ -308,6 +308,52 @@ button.nav-link:focus {
   gap: 10px;
 }
 
+.alpha-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.alpha-nav a {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 13px;
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.alpha-nav a:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+.alpha-nav a:hover {
+  background: #f1f5f9;
+}
+
+body.dark-mode .alpha-nav a {
+  background: #0f1622 !important;
+  color: #ffffff !important;
+  border-color: #2d3a4f !important;
+}
+
+body.dark-mode .alpha-nav a:hover {
+  background: #1f2a3b !important;
+}
+
+.alpha-group {
+  margin-bottom: 12px;
+}
+
+.alpha-header {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
 .edit-panel {
   position: sticky;
   top: 12px;
@@ -361,6 +407,31 @@ button.nav-link:focus {
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 14px;
+  font-family: inherit;
+}
+
+.card input::placeholder,
+.card textarea::placeholder {
+  color: #6b7280;
+}
+
+.card textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+body.dark-mode .card input,
+body.dark-mode .card textarea,
+body.dark-mode .card select {
+  background: #2a2a2a !important;
+  color: #ffffff !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode .card input::placeholder,
+body.dark-mode .card textarea::placeholder {
+  color: #cbd5e1 !important;
 }
 
 .card .meal-desc {
@@ -391,6 +462,7 @@ button.nav-link:focus {
 .card textarea {
   min-height: 100px;
   resize: vertical;
+  font-family: inherit;
 }
 
 .btn-group {
@@ -476,6 +548,8 @@ body.dark-mode .edit-panel h4 {
   color: #ffffff !important;
 }
 
+
+
 .field-value {
   padding: 10px 12px;
   background: #fff;
@@ -483,9 +557,13 @@ body.dark-mode .edit-panel h4 {
   border: 1px solid #e5e7eb;
   margin-bottom: 12px;
   font-size: 0.95rem;
-  color: #1f2937;
 }
 
+body.dark-mode .field-value {
+  background: #ffffff !important;
+  color: #0b172a !important;
+  border-color: #e5e7eb !important;
+}
 .toggle-row {
   display: flex;
   align-items: center;
