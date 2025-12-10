@@ -31,7 +31,6 @@ export default function VendorApp() {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const [darkMode, setDarkMode] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [notify, setNotify] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,12 +60,9 @@ export default function VendorApp() {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const chatUnsubRef = useRef(null);
-
-  const orders = [
-    { id: "#1024", items: "Chicken Biryani", status: "Pending", total: "$10.99" },
-    { id: "#1023", items: "Vegetable Curry", status: "Accepted", total: "$9.50" },
-    { id: "#1022", items: "Lentil Soup & Bread", status: "Ready", total: "$7.25" },
-  ];
+  const [vendorOrders, setVendorOrders] = useState([]);
+  const [vendorOrdersLoading, setVendorOrdersLoading] = useState(true);
+  const [vendorOrdersError, setVendorOrdersError] = useState("");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -115,12 +111,17 @@ export default function VendorApp() {
           const data = d.data();
           const messages = data.messages || [];
           const last = messages[messages.length - 1];
-          let name = "Unknown Customer";
+          let name = d.id;
           try {
             const userSnap = await getDoc(doc(db, "users", d.id));
             if (userSnap.exists()) {
               const u = userSnap.data();
-              name = u.first_name || u.name || "Unknown Customer";
+              name =
+                u.first_name ||
+                u.name ||
+                u.displayName ||
+                u.googleDisplayName ||
+                d.id;
             }
           } catch (err) {
             // ignore lookup errors, fallback to id
@@ -152,6 +153,62 @@ export default function VendorApp() {
 
     return () => unsub();
   }, [selectedChatId]);
+
+  // Subscribe to customer orders (flattened)
+  useEffect(() => {
+    setVendorOrdersLoading(true);
+    const unsub = onSnapshot(
+      collection(db, "orders"),
+      async (snap) => {
+        const allOrders = [];
+        await Promise.all(
+          snap.docs.map(async (d) => {
+            const data = d.data();
+            const ordersArr = data.orders || [];
+            let customerName = d.id;
+            try {
+              const userSnap = await getDoc(doc(db, "users", d.id));
+              if (userSnap.exists()) {
+                const u = userSnap.data();
+                customerName =
+                  u.first_name ||
+                  u.name ||
+                  u.displayName ||
+                  u.googleDisplayName ||
+                  d.id;
+              }
+            } catch (err) {
+              customerName = d.id;
+            }
+
+            ordersArr.forEach((order, idx) => {
+              allOrders.push({
+                ...order,
+                userId: d.id,
+                customerName,
+                orderIndex: idx,
+              });
+            });
+          })
+        );
+        const toMillis = (o) => {
+          const ts = o.createdAt;
+          if (!ts) return 0;
+          if (ts.toDate) return ts.toDate().getTime();
+          return new Date(ts).getTime();
+        };
+        allOrders.sort((a, b) => toMillis(b) - toMillis(a));
+        setVendorOrders(allOrders);
+        setVendorOrdersLoading(false);
+        setVendorOrdersError("");
+      },
+      (err) => {
+        setVendorOrdersError("Failed to load orders");
+        setVendorOrdersLoading(false);
+      }
+    );
+    return () => unsub();
+  }, []);
 
   // Subscribe to a specific conversation when selected
   useEffect(() => {
@@ -362,7 +419,7 @@ export default function VendorApp() {
 
   function handleSelectChat(thread) {
     setSelectedChatId(thread.id);
-    setSelectedChatName(thread.name || "Unknown Customer");
+    setSelectedChatName(thread.name || thread.id);
     setChatInput("");
   }
 
@@ -388,6 +445,49 @@ export default function VendorApp() {
       });
     }
     setChatInput("");
+  }
+
+  async function sendOrderMessage(userId, text) {
+    if (!text || !text.trim()) return;
+    const chatRef = doc(db, "chats", userId);
+    const message = {
+      sender: "vendor",
+      message: text.trim(),
+      createdAt: new Date(),
+    };
+    const snap = await getDoc(chatRef);
+    if (snap.exists()) {
+      await updateDoc(chatRef, {
+        messages: arrayUnion(message),
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      await setDoc(chatRef, {
+        messages: [message],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    }
+  }
+
+  async function updateOrderStatus(userId, orderIndex, status, messageText) {
+    try {
+      const ref = doc(db, "orders", userId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return;
+      const data = snap.data();
+      const ordersArr = data.orders || [];
+      if (!ordersArr[orderIndex]) return;
+      ordersArr[orderIndex] = {
+        ...ordersArr[orderIndex],
+        status,
+        updatedAt: new Date(),
+      };
+      await updateDoc(ref, { orders: ordersArr });
+      await sendOrderMessage(userId, messageText);
+    } catch (err) {
+      setVendorOrdersError("Failed to update order status");
+    }
   }
 
   function handleVendorKeyDown(e) {
@@ -512,7 +612,7 @@ export default function VendorApp() {
           <li>
             <a className={navClass("profile")} onClick={(e) => { e.preventDefault(); setSection("profile"); }}>
               <FaUser className="nav-icon" />
-              <span>Profile</span>
+              <span>Profile & Settings</span>
             </a>
           </li>
           <li className="nav-logout">
@@ -554,16 +654,10 @@ export default function VendorApp() {
 
         <section id="recipes" className={show("recipes")}>
           <div style={{ marginBottom: 16 }}>
-            <h1 className="page-title">Recipes</h1>
+            <h1 className="page-title">My Recipes</h1>
             <p className="subtitle">Create and edit your menu items.</p>
           </div>
           <div className="card">
-            <div className="flex" style={{ justifyContent: "space-between", marginBottom: 10, gap: 10, alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <h3 style={{ margin: 0 }}>Recipes</h3>
-                <span className="badge badge-accepted">Menu</span>
-              </div>
-            </div>
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 10 }}>
               <button
                 className="btn-primary"
@@ -778,6 +872,7 @@ export default function VendorApp() {
                                       .join(", ")}
                                   </div>
                                 )}
+                                <div style={{ height: 8 }} />
                               </div>
                               <div className="flex" style={{ gap: 8 }}>
                                 <button className="btn-secondary" type="button" onClick={() => startEdit(m)}>
@@ -932,25 +1027,79 @@ export default function VendorApp() {
             <p className="subtitle">Track incoming orders and status.</p>
           </div>
           <div className="card orders-card">
-            <div className="flex" style={{ justifyContent: "space-between", marginBottom: 10 }}>
-              <span className="badge badge-pending">Live</span>
-            </div>
-            <table className="table orders-table">
-              <thead>
-                <tr><th>ID</th><th>Items</th><th>Status</th><th>Total</th><th>Action</th></tr>
-              </thead>
-              <tbody id="orders-body">
-                {orders.map((o) => (
-                  <tr key={o.id}>
-                    <td>{o.id}</td>
-                    <td>{o.items}</td>
-                    <td>{o.status}</td>
-                    <td>{o.total}</td>
-                    <td><button className="btn-secondary" type="button">Update</button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {vendorOrdersLoading && <p className="subtitle">Loading orders...</p>}
+            {vendorOrdersError && <p className="error-text">{vendorOrdersError}</p>}
+            {!vendorOrdersLoading && vendorOrders.length === 0 && (
+              <p className="subtitle">No orders yet.</p>
+            )}
+            {vendorOrders.length > 0 && (
+              <table className="table orders-table">
+                <thead>
+                  <tr><th>Date</th><th>Customer</th><th>Items</th><th>Status</th><th>Total</th><th>Action</th></tr>
+                </thead>
+                <tbody id="orders-body">
+                  {vendorOrders.map((o, idx) => {
+                    const rawStatus = o.status;
+                    const status = rawStatus === "ordered" || !rawStatus ? "Pending" : rawStatus;
+                    const created =
+                      o.createdAt?.toDate
+                        ? o.createdAt.toDate().toLocaleString()
+                        : o.createdAt
+                        ? new Date(o.createdAt).toLocaleString()
+                        : "-";
+                    const totalVal = o.total || 0;
+                    return (
+                      <tr key={`${o.userId}-${o.orderIndex}-${idx}`}>
+                        <td>{created}</td>
+                        <td>{o.customerName || o.userId}</td>
+                        <td>
+                          {Array.isArray(o.items) && o.items.length > 0 ? (
+                            o.items.map((item, iidx) => (
+                              <div key={iidx} className="meal-desc">
+                                <strong>{item.title || item.name || item.recipeTitle || "Item"}</strong>{" "}
+                                {item.size ? `(${item.size})` : ""} x {item.quantity || 1}
+                              </div>
+                            ))
+                          ) : typeof o.items === "string" ? (
+                            <div className="meal-desc">{o.items}</div>
+                          ) : (
+                            <div className="meal-desc">No items</div>
+                          )}
+                        </td>
+                        <td>{status}</td>
+                        <td>${Number(totalVal).toFixed ? Number(totalVal).toFixed(2) : totalVal}</td>
+                        <td>
+                          <div className="flex" style={{ gap: 6 }}>
+                            <button
+                              className="btn-primary"
+                              type="button"
+                              disabled={status === "Accepted"}
+                              onClick={() => {
+                                const msg = window.prompt("Send a message to the customer? (optional)", "");
+                                updateOrderStatus(o.userId, o.orderIndex, "Accepted", msg);
+                              }}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              className="btn-secondary"
+                              type="button"
+                              disabled={status === "Rejected"}
+                              onClick={() => {
+                                const msg = window.prompt("Send a message to the customer? (optional)", "");
+                                updateOrderStatus(o.userId, o.orderIndex, "Rejected", msg);
+                              }}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
           </div>
         </section>
 
@@ -1055,15 +1204,6 @@ export default function VendorApp() {
               <div
                 className={`fake-toggle ${darkMode ? "on" : ""}`}
                 onClick={() => setDarkMode(!darkMode)}
-                role="button"
-              ></div>
-            </div>
-
-            <div className="toggle-row">
-              <span>Order Notifications</span>
-              <div
-                className={`fake-toggle ${notify ? "on" : ""}`}
-                onClick={() => setNotify(!notify)}
                 role="button"
               ></div>
             </div>

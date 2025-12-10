@@ -61,11 +61,11 @@ function Navbar({ isOpen, toggleSidebar }) {
         <FaInfoCircle /> {isOpen && <span>About</span>}
 </NavLink>
 
-<NavLink to="/dashboardLayout/contact" className={({ isActive }) => (isActive ? "active" : "")}>
+        <NavLink to="/dashboardLayout/contact" className={({ isActive }) => (isActive ? "active" : "")}>
           <FaEnvelope /> {isOpen && <span>Contact</span>}
         </NavLink>
         <NavLink to="/dashboardLayout/settings" className={({ isActive }) => (isActive ? "active" : "")}>
-          <FaCog /> {isOpen && <span>Settings</span>}
+          <FaCog /> {isOpen && <span>Profile & Settings</span>}
         </NavLink>
 
         <button

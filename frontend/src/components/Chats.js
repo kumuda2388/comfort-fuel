@@ -19,6 +19,23 @@ function Chats() {
   const [userName, setUserName] = useState("");
   const messagesEndRef = useRef();
 
+  const ensureUserProfile = async () => {
+    if (!user) return;
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      const display = user.displayName || (user.email ? user.email.split("@")[0] : "User");
+      await setDoc(userRef, {
+        first_name: display,
+        displayName: user.displayName || display,
+        email: user.email || "",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setUserName(display);
+    }
+  };
+
   // Scroll to bottom when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -28,10 +45,14 @@ function Chats() {
   useEffect(() => {
     const fetchUserName = async () => {
       if (!user) return;
+      await ensureUserProfile();
       const userRef = doc(db, "users", user.uid);
       const snap = await getDoc(userRef);
       if (snap.exists()) {
-        setUserName(snap.data().first_name || "User");
+        const data = snap.data();
+        setUserName(data.first_name || data.displayName || "User");
+      } else if (user.displayName) {
+        setUserName(user.displayName);
       }
     };
     fetchUserName();

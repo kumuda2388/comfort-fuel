@@ -138,7 +138,7 @@ a {
 }
 
 .btn-primary:hover {
-  background: #3579c7;
+  background: #2f6fb3 !important;
 }
 
 .btn-secondary {
@@ -512,8 +512,8 @@ body.dark-mode .orders-card {
 
 body.dark-mode .orders-card .orders-table th,
 body.dark-mode .orders-card .orders-table td {
-  color: #0b172a !important;
-  background: #ffffff !important;
+  color: #ffffff !important;
+  background: #1a2332 !important;
 }
 
 .badge {
@@ -729,6 +729,10 @@ body.dark-mode .fake-toggle.on {
 body.dark-mode .logout-btn,
 body.dark-mode .btn-primary {
   background-color: #3579c7 !important;
+}
+
+body.dark-mode .btn-primary:hover {
+  background-color: #275a9d !important;
 }
 
 /* ---------------- RESPONSIVE ---------------- */

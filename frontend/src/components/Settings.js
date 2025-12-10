@@ -5,8 +5,7 @@ import { auth, db } from "../firebase";
 function Settings() {
   const user = auth.currentUser; 
   const [darkMode, setDarkMode] = useState(false);
-  const [notifications, setNotifications] = useState(true);
-  const [firstName, setFirstName] = useState("");
+  const [firstName, setFirstName] = useState(user?.displayName || "");
   const [lastName, setLastName] = useState("");
 
   const settingsRef = doc(db, "userSettings", user.uid);
@@ -21,6 +20,9 @@ function Settings() {
       if (userDoc.exists()) {
         setFirstName(userDoc.data().first_name || "");
         setLastName(userDoc.data().last_name || "");
+      } else if (user.displayName) {
+        setFirstName(user.displayName);
+        setLastName("");
       }
 
       // Load Mode and notifications from Firestore
@@ -28,7 +30,6 @@ function Settings() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setDarkMode(data.darkMode || false);
-        setNotifications(data.notifications !== undefined ? data.notifications : true);
         applyDarkMode(data.darkMode || false); // apply immediately
       }
     };
@@ -57,29 +58,28 @@ function Settings() {
     );
   };
 
-  const handleNotificationsToggle = async () => {
-    const newValue = !notifications;
-    setNotifications(newValue);
-
-    await setDoc(
-      settingsRef,
-      { notifications: newValue, updatedAt: serverTimestamp() },
-      { merge: true }
-    );
-  };
-
   return (
     <div className="settings-container">
-      <h2 className="settings-title">Welcome, {firstName} {lastName}</h2>
+      <h2 className="settings-title">Profile & Settings</h2>
+      <p className="subtitle">Manage your account preferences.</p>
 
-      <div className="settings-item">
-        <label>Dark Mode</label>
-        <input type="checkbox" checked={darkMode} onChange={handleDarkModeToggle} />
-      </div>
+      <div className="profile-card">
+        <div className="field-label">Name</div>
+        <div className="field-value">
+          {`${firstName} ${lastName}`.trim() || "Unknown"}
+        </div>
 
-      <div className="settings-item">
-        <label>Notifications</label>
-        <input type="checkbox" checked={notifications} onChange={handleNotificationsToggle} />
+        <div className="field-label">Email</div>
+        <div className="field-value">{user?.email || "Not provided"}</div>
+
+        <div className="toggle-row">
+          <span>Dark Mode</span>
+          <div
+            className={`fake-toggle ${darkMode ? "on" : ""}`}
+            onClick={handleDarkModeToggle}
+            role="button"
+          ></div>
+        </div>
       </div>
     </div>
   );

@@ -300,6 +300,68 @@ body.dashboard-body {
   margin-bottom: 1.5rem;
 }
 
+.profile-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-label {
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.field-value {
+  padding: 10px 12px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.fake-toggle {
+  width: 46px;
+  height: 24px;
+  background: #e5e7eb;
+  border-radius: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.fake-toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.fake-toggle.on {
+  background: #4a90e2;
+}
+
+.fake-toggle.on::after {
+  transform: translateX(22px);
+}
+
 .settings-item {
   display: flex;
   justify-content: space-between;
@@ -438,6 +500,30 @@ input:checked + .slider:before {
   
   body.dark-mode .settings-title {
     color: #ffffff !important;
+  }
+
+  body.dark-mode .profile-card {
+    background: #0f1622 !important;
+    border-color: #2d3a4f !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  body.dark-mode .field-label {
+    color: #e0e6f0 !important;
+  }
+
+  body.dark-mode .field-value {
+    background: #1a2332 !important;
+    border-color: #2d3a4f !important;
+    color: #ffffff !important;
+  }
+
+  body.dark-mode .fake-toggle {
+    background: #2d3a4f !important;
+  }
+
+  body.dark-mode .fake-toggle.on {
+    background: #4a90e2 !important;
   }
 
 body.dark-mode .login-container,
