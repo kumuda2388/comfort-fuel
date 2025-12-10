@@ -19,6 +19,9 @@ import {
   setDoc,
   getDoc,
   deleteDoc,
+  onSnapshot,
+  arrayUnion,
+  serverTimestamp,
 } from "firebase/firestore";
 import { FaHome, FaUtensils, FaClipboardList, FaComments, FaUser, FaSignOutAlt } from "react-icons/fa";
 
@@ -52,6 +55,12 @@ export default function VendorApp() {
 
   const [profileName, setProfileName] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
+  const [chatThreads, setChatThreads] = useState([]);
+  const [selectedChatId, setSelectedChatId] = useState("");
+  const [selectedChatName, setSelectedChatName] = useState("");
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
+  const chatUnsubRef = useRef(null);
 
   const orders = [
     { id: "#1024", items: "Chicken Biryani", status: "Pending", total: "$10.99" },
@@ -97,6 +106,85 @@ export default function VendorApp() {
     }
     localStorage.setItem("darkMode", darkMode ? "true" : "false");
   }, [darkMode]);
+
+  // Subscribe to all customer chat threads for vendor view
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "chats"), async (snap) => {
+      const threads = await Promise.all(
+        snap.docs.map(async (d) => {
+          const data = d.data();
+          const messages = data.messages || [];
+          const last = messages[messages.length - 1];
+          let name = "Unknown Customer";
+          try {
+            const userSnap = await getDoc(doc(db, "users", d.id));
+            if (userSnap.exists()) {
+              const u = userSnap.data();
+              name = u.first_name || u.name || "Unknown Customer";
+            }
+          } catch (err) {
+            // ignore lookup errors, fallback to id
+          }
+          return {
+            id: d.id,
+            name,
+            lastMessage: last?.message || "",
+            lastTimestamp: last?.createdAt || null,
+          };
+        })
+      );
+
+      const toMillis = (ts) => {
+        if (!ts) return 0;
+        if (ts.toDate) return ts.toDate().getTime();
+        return new Date(ts).getTime();
+      };
+
+      threads.sort((a, b) => toMillis(b.lastTimestamp) - toMillis(a.lastTimestamp));
+      setChatThreads(threads);
+
+      // reset selection if the selected chat disappeared
+      if (selectedChatId && !threads.find((t) => t.id === selectedChatId)) {
+        setSelectedChatId("");
+        setChatMessages([]);
+      }
+    });
+
+    return () => unsub();
+  }, [selectedChatId]);
+
+  // Subscribe to a specific conversation when selected
+  useEffect(() => {
+    if (chatUnsubRef.current) {
+      chatUnsubRef.current();
+    }
+    if (!selectedChatId) {
+      setChatMessages([]);
+      setSelectedChatName("");
+      return undefined;
+    }
+
+    const chatRef = doc(db, "chats", selectedChatId);
+    chatUnsubRef.current = onSnapshot(chatRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        const msgs = (data.messages || []).slice().sort((a, b) => {
+          const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
+          const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
+          return ta - tb;
+        });
+        setChatMessages(msgs);
+      } else {
+        setChatMessages([]);
+      }
+    });
+
+    return () => {
+      if (chatUnsubRef.current) {
+        chatUnsubRef.current();
+      }
+    };
+  }, [selectedChatId]);
 
   const navClass = (id) => `nav-link ${section === id ? "active" : ""}`;
   const show = (id) => `page-section ${section === id ? "active" : ""}`;
@@ -271,6 +359,43 @@ export default function VendorApp() {
   }
 
   if (authLoading) return <div style={{ padding: 24 }}>Loading...</div>;
+
+  function handleSelectChat(thread) {
+    setSelectedChatId(thread.id);
+    setSelectedChatName(thread.name || "Unknown Customer");
+    setChatInput("");
+  }
+
+  async function sendVendorMessage() {
+    if (!selectedChatId || !chatInput.trim()) return;
+    const chatRef = doc(db, "chats", selectedChatId);
+    const message = {
+      sender: "vendor",
+      message: chatInput.trim(),
+      createdAt: new Date(),
+    };
+    const snap = await getDoc(chatRef);
+    if (snap.exists()) {
+      await updateDoc(chatRef, {
+        messages: arrayUnion(message),
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      await setDoc(chatRef, {
+        messages: [message],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    }
+    setChatInput("");
+  }
+
+  function handleVendorKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendVendorMessage();
+    }
+  }
 
   if (!user) {
     return (
@@ -461,7 +586,12 @@ export default function VendorApp() {
             {!editId && showAddForm && (
               <>
                 <h4 style={{ marginTop: 10, marginBottom: 10 }}>Add Recipe</h4>
-                <form className="stack-vert" onSubmit={handleRecipeSubmit} ref={formRef}>
+                <form
+                  className="stack-vert"
+                  onSubmit={handleRecipeSubmit}
+                  ref={formRef}
+                  style={{ marginBottom: 16 }}
+                >
                   <input
                     placeholder="Recipe title"
                     value={recipeTitle}
@@ -829,8 +959,82 @@ export default function VendorApp() {
             <h1 className="page-title">My Chats</h1>
             <p className="subtitle">Conversations with customers.</p>
           </div>
-          <div className="card">
-            <p className="subtitle">placeholder</p>
+          <div className="card" style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16, minHeight: "420px" }}>
+            <div style={{ borderRight: "1px solid #e5e7eb", paddingRight: 12, overflowY: "auto" }}>
+              <h4 style={{ marginBottom: 10 }}>Customers</h4>
+              {chatThreads.length === 0 && <p className="subtitle">No chats yet.</p>}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {chatThreads.map((thread) => (
+                  <button
+                    key={thread.id}
+                    className={`card ${selectedChatId === thread.id ? "active" : ""}`}
+                    style={{
+                      padding: 12,
+                      textAlign: "left",
+                      cursor: "pointer",
+                      background: selectedChatId === thread.id ? "#eef2ff" : "#fff",
+                      borderColor: selectedChatId === thread.id ? "#4a90e2" : "#e5e7eb",
+                    }}
+                    onClick={() => handleSelectChat(thread)}
+                  >
+                    <div className="meal-name" style={{ fontSize: "0.95rem" }}>{thread.name}</div>
+                    <div className="meal-desc" style={{ marginTop: 4 }}>{thread.lastMessage || "No messages yet"}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div className="card" style={{ flex: 1, overflowY: "auto" }}>
+                <div className="flex" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <h4 style={{ margin: 0 }}>{selectedChatName || "Select a conversation"}</h4>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {chatMessages.map((msg, idx) => (
+                    <div key={idx} style={{ textAlign: msg.sender === "vendor" ? "right" : "left" }}>
+                      <div
+                        style={{
+                          display: "inline-block",
+                          background: msg.sender === "vendor" ? "#4a90e2" : "#e5e7eb",
+                          color: msg.sender === "vendor" ? "#fff" : "#111827",
+                          padding: "8px 12px",
+                          borderRadius: 12,
+                          maxWidth: "80%",
+                        }}
+                      >
+                        {msg.message}
+                      </div>
+                      <div style={{ fontSize: "11px", color: "#6b7280" }}>
+                        {msg.createdAt?.toDate
+                          ? msg.createdAt.toDate().toLocaleString()
+                          : new Date(msg.createdAt).toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
+                  {chatMessages.length === 0 && <p className="subtitle">No messages</p>}
+                </div>
+              </div>
+              <div className="flex" style={{ display: "flex", gap: 8, flexWrap: "nowrap", alignItems: "center" }}>
+                <input
+                  className="input"
+                  style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder={selectedChatId ? "Type a message..." : "Select a chat to start messaging"}
+                  onKeyDown={handleVendorKeyDown}
+                  disabled={!selectedChatId}
+                />
+                <button
+                  className="btn-primary"
+                  type="button"
+                  style={{ flex: "0 0 auto", whiteSpace: "nowrap" }}
+                  onClick={sendVendorMessage}
+                  disabled={!selectedChatId || !chatInput.trim()}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 

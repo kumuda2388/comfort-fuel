@@ -8,7 +8,8 @@ import {
   updateDoc,
   arrayUnion,
   serverTimestamp,
-  addDoc,setDoc
+  addDoc,
+  setDoc,
 } from "firebase/firestore";
 
 function Chats() {
@@ -45,7 +46,12 @@ function Chats() {
     const unsubscribe = onSnapshot(chatRef, (snap) => {
       if (snap.exists()) {
         const data = snap.data();
-        setMessages(data.messages || []);
+        const msgs = (data.messages || []).slice().sort((a, b) => {
+          const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
+          const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
+          return ta - tb;
+        });
+        setMessages(msgs);
       } else {
         setMessages([]);
       }
@@ -63,7 +69,7 @@ function Chats() {
 
     const messageData = {
       sender: "user",
-      message: newMsg,
+      message: newMsg.trim(),
       createdAt: new Date(),
     };
 
@@ -72,6 +78,7 @@ function Chats() {
     if (chatSnap.exists()) {
       await updateDoc(chatRef, {
         messages: arrayUnion(messageData),
+        updatedAt: serverTimestamp(),
       });
     } else {
       await setDoc(chatRef, {
@@ -93,64 +100,73 @@ function Chats() {
     setNewMsg("");
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  if (!user) {
+    return <div style={{ padding: 16 }}>Please log in to chat.</div>;
+  }
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "80vh",
-        border: "1px solid #ccc",
-        padding: "10px",
-      }}
-    >
-      <div style={{ flex: 1, overflowY: "auto", marginBottom: "10px" }}>
+    <div className="card" style={{ display: "flex", flexDirection: "column", height: "70vh" }}>
+      <div style={{ marginBottom: 8 }}>
+        <h3 style={{ margin: 0 }}>Chat with Support</h3>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", marginBottom: 10, padding: "8px", border: "1px solid #e5e7eb", borderRadius: 8 }}>
         {messages.map((msg, index) => (
           <div
             key={index}
             style={{
-              marginBottom: "8px",
+              marginBottom: "10px",
               textAlign: msg.sender === "user" ? "right" : "left",
             }}
           >
             <div
               style={{
                 display: "inline-block",
-                display: "inline-block",
-    background: msg.sender === "user"
-      ? "var(--chat-user-bg)"
-      : "var(--chat-vendor-bg)",
-    color: "var(--chat-text)",
-    padding: "6px 12px",
-    borderRadius: "12px",
+                background: msg.sender === "user" ? "#4a90e2" : "#e5e7eb",
+                color: msg.sender === "user" ? "#fff" : "#111827",
+                padding: "8px 12px",
+                borderRadius: "12px",
+                maxWidth: "80%",
               }}
             >
               {msg.message}
             </div>
-            <div style={{ fontSize: "10px", color: "#888" }}>
+            <div style={{ fontSize: "11px", color: "#6b7280" }}>
               {msg.createdAt?.toDate
                 ? msg.createdAt.toDate().toLocaleString()
                 : new Date(msg.createdAt).toLocaleString()}
             </div>
           </div>
         ))}
+        {messages.length === 0 && <p className="subtitle">No messages yet.</p>}
         <div ref={messagesEndRef} />
       </div>
-      <div style={{ display: "flex" }}>
+      <div className="flex" style={{ display: "flex", gap: 8, flexWrap: "nowrap", alignItems: "center" }}>
         <input
           type="text"
           value={newMsg}
           onChange={(e) => setNewMsg(e.target.value)}
           placeholder="Type a message..."
+          onKeyDown={handleKeyDown}
           style={{
             flex: 1,
-            padding: "8px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #e5e7eb",
           }}
         />
         <button
           onClick={sendMessage}
-          style={{ marginLeft: "5px", padding: "8px 12px" }}
+          className="btn-primary"
+          type="button"
+          disabled={!newMsg.trim()}
+          style={{ flex: "0 0 auto", whiteSpace: "nowrap" }}
         >
           Send
         </button>
