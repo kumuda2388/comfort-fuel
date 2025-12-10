@@ -1,3 +1,5 @@
+/* With firebase we do not require backend server*/
+
 const express = require("express");
 const cors = require("cors");
 

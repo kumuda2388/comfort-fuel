@@ -20,7 +20,6 @@ function ChangePassword() {
     e.preventDefault();
 
     try {
-      // STEP 1: Sign in again using email + *old password*
       const loginUser = await signInWithEmailAndPassword(
         auth,
         email,
@@ -29,7 +28,6 @@ function ChangePassword() {
 
       const user = loginUser.user;
 
-      // STEP 2: Check if this account was created by GOOGLE
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -42,17 +40,14 @@ function ChangePassword() {
         }
       }
 
-      // STEP 3: Reauthenticate user
       const credential = EmailAuthProvider.credential(email, oldPassword);
       await reauthenticateWithCredential(user, credential);
 
-      // STEP 4: CHECK new password length
       if (newPassword.length < 6) {
         alert("New password must be at least 6 characters.");
         return;
       }
 
-      // STEP 5: Update password
       await updatePassword(user, newPassword);
 
       alert("Password updated successfully. Please login again.");

@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
 
 function Settings() {
-  const user = auth.currentUser; // logged-in user
+  const user = auth.currentUser; 
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [firstName, setFirstName] = useState("");
@@ -23,7 +23,7 @@ function Settings() {
         setLastName(userDoc.data().last_name || "");
       }
 
-      // Load darkMode and notifications from Firestore
+      // Load Mode and notifications from Firestore
       const docSnap = await getDoc(settingsRef);
       if (docSnap.exists()) {
         const data = docSnap.data();

@@ -16,7 +16,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // EMAIL/PASSWORD REGISTRATION
+  // email password registration
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -52,7 +52,7 @@ function Register() {
     }
   };
 
-  // GOOGLE SIGN-IN
+  // google sign in
   const handleGoogleSignup = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
