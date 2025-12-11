@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 
 function Orders() {
@@ -34,6 +34,24 @@ function Orders() {
 
   if (loading) return <p>Loading orders...</p>;
 
+  const handleReorder = async (order) => {
+    if (!user || !order?.items) return;
+    try {
+      const cartRef = doc(db, "cart", user.uid);
+      const cartSnap = await getDoc(cartRef);
+      const existing = cartSnap.exists() ? cartSnap.data().items || [] : [];
+      const merged = [...existing, ...order.items];
+      if (cartSnap.exists()) {
+        await updateDoc(cartRef, { items: merged });
+      } else {
+        await setDoc(cartRef, { items: merged });
+      }
+      alert("Items added to cart for reorder.");
+    } catch (err) {
+      alert("Could not reorder. Please try again.");
+    }
+  };
+
   return (
     <div className="main-content">
       <h1 className="page-title">Your Orders</h1>
@@ -48,6 +66,7 @@ function Orders() {
               <th style={{ padding: "10px", textAlign: "left" }}>Items</th>
               <th style={{ padding: "10px", textAlign: "left" }}>Total</th>
               <th style={{ padding: "10px", textAlign: "left" }}>Status</th>
+              <th style={{ padding: "10px", textAlign: "left" }}>Action</th>
             </tr>
           </thead>
 
@@ -75,6 +94,17 @@ function Orders() {
                 <td style={{ padding: "10px" }}>${order.total}</td>
 
                 <td style={{ padding: "10px" }}>{order.status}</td>
+
+                <td style={{ padding: "10px" }}>
+                  <button
+                    className="btn-primary"
+                    type="button"
+                    onClick={() => handleReorder(order)}
+                    disabled={!order.items || order.items.length === 0}
+                  >
+                    Re-order
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
