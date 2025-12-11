@@ -7,7 +7,7 @@ npm install firebase
 npm install react-router-dom
 npm install react-icons
 
-for backend:
+for backend if required in future:
 npm init -y
 npm install express cors
 node server.js - to start backend server
