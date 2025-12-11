@@ -137,6 +137,10 @@ function Register() {
       <button onClick={handleGoogleSignup} className="btn-google">
         Continue with Google
       </button>
+
+      <p style={{ marginTop: "10px" }}>
+        <Link to="/">Back to welcome</Link>
+      </p>
     </div>
   );
 }

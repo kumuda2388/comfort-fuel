@@ -113,19 +113,16 @@ function Login() {
 
       <hr className="divider" />
 
+      <p style={{ marginTop: "10px" }}>
+        <Link to="/change-password">Change Password?</Link>
+      </p>
+
       <button onClick={handleGoogleLogin} className="btn-google">
         Continue with Google
       </button>
 
-      <p style={{ marginTop: "15px" }}>
-      <Link to="/change-password">Change Password?</Link>
-    </p>
-
       <p style={{ marginTop: "10px" }}>
-        Are you a vendor?{" "}
-        <Link className="portal-link" to="/vendor">
-          Go to vendor portal
-        </Link>
+        <Link to="/">Back to welcome</Link>
       </p>
 
     </div>

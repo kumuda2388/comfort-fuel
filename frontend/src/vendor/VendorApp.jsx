@@ -31,7 +31,7 @@ export default function VendorApp() {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const [darkMode, setDarkMode] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [authMode, setAuthMode] = useState("login");
+  const [authMode, setAuthMode] = useState("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -60,6 +60,8 @@ export default function VendorApp() {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const chatUnsubRef = useRef(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedMessageIndexes, setSelectedMessageIndexes] = useState([]);
   const [vendorOrders, setVendorOrders] = useState([]);
   const [vendorOrdersLoading, setVendorOrdersLoading] = useState(true);
   const [vendorOrdersError, setVendorOrdersError] = useState("");
@@ -260,7 +262,7 @@ export default function VendorApp() {
     const status = o.status;
     const normalized = status === "ordered" || !status ? "Pending" : status;
     const ts = o.updatedAt || o.createdAt;
-    return normalized === "Accepted" && isToday(ts);
+    return (normalized === "Accepted" || normalized === "Ready for Pickup") && isToday(ts);
   });
 
   const ordersTodayCount = acceptedToday.length;
@@ -552,82 +554,130 @@ export default function VendorApp() {
     }
   }
 
+  async function handleDeleteMessage(msgIdx) {
+    if (!selectedChatId) return;
+    try {
+      const chatRef = doc(db, "chats", selectedChatId);
+      const snap = await getDoc(chatRef);
+      if (!snap.exists()) return;
+      const msgs = snap.data().messages || [];
+      if (!msgs[msgIdx]) return;
+      const updated = msgs.filter((_, i) => i !== msgIdx);
+      await updateDoc(chatRef, { messages: updated, updatedAt: serverTimestamp() });
+      setSelectedMessageIndexes([]);
+    } catch (err) {
+      console.error("Failed to delete message", err);
+    }
+  }
+
+  async function handleDeleteSelectedMessages() {
+    if (!selectedChatId || selectedMessageIndexes.length === 0) return;
+    try {
+      const chatRef = doc(db, "chats", selectedChatId);
+      const snap = await getDoc(chatRef);
+      if (!snap.exists()) return;
+      const msgs = snap.data().messages || [];
+      const keep = msgs.filter((_, idx) => !selectedMessageIndexes.includes(idx));
+      await updateDoc(chatRef, { messages: keep, updatedAt: serverTimestamp() });
+      setSelectedMessageIndexes([]);
+      setSelectMode(false);
+    } catch (err) {
+      console.error("Failed to delete messages", err);
+    }
+  }
+
   if (!user) {
     return (
-      <div className="auth-container">
-        <div className="logo" style={{ marginBottom: 10 }}>
-          <div className="logo-title">Comfort Fuel</div>
-          <div className="logo-sub">Vendor Portal</div>
-        </div>
-        <div className="auth-tabs">
-          <button
-            className={`auth-tab ${authMode === "login" ? "active" : ""}`}
-            onClick={() => setAuthMode("login")}
-          >
-            Login
-          </button>
-          <button
-            className={`auth-tab ${authMode === "signup" ? "active" : ""}`}
-            onClick={() => setAuthMode("signup")}
-          >
-            Sign Up
-          </button>
-        </div>
-        <div className="card">
-          <form className="stack-vert" onSubmit={handleAuthSubmit}>
-            {authMode === "signup" && (
-              <input
-                type="text"
-                placeholder="Username (Sign Up)"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            )}
+      <div className="register-container vendor-auth">
+        <h1 className="app-title">Comfort Fuel</h1>
+        <h2>{authMode === "signup" ? "Create Account" : "Vendor Login"}</h2>
+        <form className="register-form" onSubmit={handleAuthSubmit}>
+          {authMode === "signup" && (
             <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              className="input-field"
+              placeholder="Business / Vendor Name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
-            <div className="input-row">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                className="toggle-btn"
-                onClick={() => setShowPassword((v) => !v)}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-            <button className="btn-primary" type="submit">
-              {authMode === "signup" ? "Sign Up" : "Sign In"}
+          )}
+
+          <input
+            type="email"
+            className="input-field"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              className="input-field"
+              placeholder="Password (min 6 chars)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{ flex: 1 }}
+            />
+            <button
+              type="button"
+              className="toggle-btn"
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? "Hide" : "Show"}
             </button>
-          </form>
-          {authError && <p className="error-text">{authError}</p>}
-          <button className="btn-google" type="button" onClick={handleGoogleLogin} style={{ width: "100%", marginTop: 10 }}>
-            Continue with Google
+          </div>
+
+          <button type="submit" className="btn-primary" style={{ width: "100%" }}>
+            {authMode === "signup" ? "Register as Vendor" : "Login"}
           </button>
-          <p style={{ marginTop: 12 }}>
+        </form>
+
+        {authError && <p className="error-text">{authError}</p>}
+
+        {authMode === "signup" ? (
+          <p style={{ marginTop: "10px" }}>
+            Already have an account?{" "}
+            <a
+              style={{ color: "#4a90e2", cursor: "pointer" }}
+              onClick={() => setAuthMode("login")}
+            >
+              Login
+            </a>
+          </p>
+        ) : (
+          <p style={{ marginTop: "10px" }}>
+            Need to create an account?{" "}
+            <a
+              style={{ color: "#4a90e2", cursor: "pointer" }}
+              onClick={() => setAuthMode("signup")}
+            >
+              Sign up
+            </a>
+          </p>
+        )}
+
+        <hr className="divider" />
+
+        <button onClick={handleGoogleLogin} className="btn-google" style={{ width: "100%" }}>
+          Continue with Google
+        </button>
+
+        {authMode === "login" && (
+          <p style={{ marginTop: "10px" }}>
             Forgot your password?{" "}
-            <Link className="portal-link" to="/change-password">
-              Change password
-            </Link>
+            <Link to="/change-password">Change password</Link>
           </p>
-          <p style={{ marginTop: 12 }}>
-            Are you a customer?{" "}
-            <Link className="portal-link" to="/login">
-              Go to customer portal
-            </Link>
-          </p>
-        </div>
+        )}
+
+        <hr className="divider" />
+
+        <p style={{ marginTop: "10px" }}>
+          <Link to="/">Back to welcome</Link>
+        </p>
       </div>
     );
   }
@@ -723,7 +773,7 @@ export default function VendorApp() {
                   setShowAddForm((v) => !v);
                 }}
               >
-                {showAddForm ? "Close" : "Add Recipe"}
+                Add Recipe
               </button>
             </div>
             {recipesLoading && <p className="subtitle">Loading recipes...</p>}
@@ -828,12 +878,12 @@ export default function VendorApp() {
                       </div>
                     ))}
                     <button
-                      className="btn-secondary"
+                      className="btn-primary"
                       type="button"
                       onClick={() =>
                         setIngredients([...ingredients, { name: "", amount: "", customizable: false }])
                       }
-                      style={{ marginTop: 6 }}
+                      style={{ marginTop: 6, width: "auto" }}
                     >
                       Add Ingredient
                     </button>
@@ -852,6 +902,7 @@ export default function VendorApp() {
                         setIngredients([{ name: "", amount: "", customizable: false }]);
                         setShowAddForm(false);
                       }}
+                      style={{ background: "#ffffff", color: "#111827", borderColor: "#e5e7eb" }}
                     >
                       Cancel
                     </button>
@@ -926,10 +977,20 @@ export default function VendorApp() {
                                 <div style={{ height: 8 }} />
                               </div>
                               <div className="flex" style={{ gap: 8 }}>
-                                <button className="btn-secondary" type="button" onClick={() => startEdit(m)}>
+                                <button
+                                  className="btn-secondary"
+                                  type="button"
+                                  onClick={() => startEdit(m)}
+                                  style={{ background: "#ffffff", color: "#111827", borderColor: "#e5e7eb" }}
+                                >
                                   Edit
                                 </button>
-                                <button className="btn-secondary" type="button" onClick={() => handleDeleteRecipe(m.id)}>
+                                <button
+                                  className="btn-secondary"
+                                  type="button"
+                                  onClick={() => handleDeleteRecipe(m.id)}
+                                  style={{ background: "#ffffff", color: "#111827", borderColor: "#e5e7eb" }}
+                                >
                                   Delete
                                 </button>
                               </div>
@@ -1037,12 +1098,12 @@ export default function VendorApp() {
                         </div>
                       ))}
                       <button
-                        className="btn-secondary"
+                        className="btn-primary"
                         type="button"
                         onClick={() =>
                           setIngredients([...ingredients, { name: "", amount: "", customizable: false }])
                         }
-                        style={{ marginTop: 6 }}
+                        style={{ marginTop: 6, width: "auto" }}
                       >
                         Add Ingredient
                       </button>
@@ -1061,6 +1122,7 @@ export default function VendorApp() {
                           setIngredients([{ name: "", amount: "", customizable: false }]);
                           setShowAddForm(false);
                         }}
+                        style={{ background: "#ffffff", color: "#111827", borderColor: "#e5e7eb" }}
                       >
                         Cancel
                       </button>
@@ -1099,6 +1161,12 @@ export default function VendorApp() {
                         ? new Date(o.createdAt).toLocaleString()
                         : "-";
                     const totalVal = o.total || 0;
+                    const orderLabel =
+                      Array.isArray(o.items) && o.items.length > 0
+                        ? `${o.items[0].title || o.items[0].name || o.items[0].recipeTitle || "Item"}${
+                            o.items[0].size ? ` (${o.items[0].size})` : ""
+                          } x ${o.items[0].quantity || 1}`
+                        : "Order";
                     return (
                       <tr key={`${o.userId}-${o.orderIndex}-${idx}`}>
                         <td>{created}</td>
@@ -1109,6 +1177,16 @@ export default function VendorApp() {
                               <div key={iidx} className="meal-desc">
                                 <strong>{item.title || item.name || item.recipeTitle || "Item"}</strong>{" "}
                                 {item.size ? `(${item.size})` : ""} x {item.quantity || 1}
+                                {Array.isArray(item.selectedIngredients) && item.selectedIngredients.length > 0 && (
+                                  <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: 4 }}>
+                                    Custom: {item.selectedIngredients.join(", ")}
+                                  </div>
+                                )}
+                                {item.note && (
+                                  <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: 2 }}>
+                                    Note: {item.note}
+                                  </div>
+                                )}
                               </div>
                             ))
                           ) : typeof o.items === "string" ? (
@@ -1120,14 +1198,21 @@ export default function VendorApp() {
                         <td>{status}</td>
                         <td>${Number(totalVal).toFixed ? Number(totalVal).toFixed(2) : totalVal}</td>
                         <td>
-                          <div className="flex" style={{ gap: 6 }}>
+                          <div
+                            className="flex"
+                            style={{ display: "flex", gap: 14, flexWrap: "nowrap" }}
+                          >
                             <button
                               className="btn-primary"
                               type="button"
-                              disabled={status === "Accepted"}
+                              disabled={status === "Accepted" || status === "Ready for Pickup"}
                               onClick={() => {
-                                const msg = window.prompt("Send a message to the customer? (optional)", "");
-                                updateOrderStatus(o.userId, o.orderIndex, "Accepted", msg);
+                                const msg = window.prompt(
+                                  `Send a message to the customer about "${orderLabel}"? (optional)`,
+                                  ""
+                                );
+                                const finalMsg = msg ? `[${orderLabel}] ${msg}` : "";
+                                updateOrderStatus(o.userId, o.orderIndex, "Accepted", finalMsg);
                               }}
                             >
                               Accept
@@ -1137,11 +1222,30 @@ export default function VendorApp() {
                               type="button"
                               disabled={status === "Rejected"}
                               onClick={() => {
-                                const msg = window.prompt("Send a message to the customer? (optional)", "");
-                                updateOrderStatus(o.userId, o.orderIndex, "Rejected", msg);
+                                const msg = window.prompt(
+                                  `Send a message to the customer about "${orderLabel}"? (optional)`,
+                                  ""
+                                );
+                                const finalMsg = msg ? `[${orderLabel}] ${msg}` : "";
+                                updateOrderStatus(o.userId, o.orderIndex, "Rejected", finalMsg);
                               }}
                             >
                               Reject
+                            </button>
+                            <button
+                              className="btn-ready"
+                              type="button"
+                              disabled={status !== "Accepted"}
+                              onClick={() => {
+                                const msg = window.prompt(
+                                  `Send a message to the customer about "${orderLabel}"? (optional)`,
+                                  ""
+                                );
+                                const finalMsg = msg ? `[${orderLabel}] ${msg}` : "";
+                                updateOrderStatus(o.userId, o.orderIndex, "Ready for Pickup", finalMsg);
+                              }}
+                            >
+                              Ready for Pickup
                             </button>
                           </div>
                         </td>
@@ -1185,8 +1289,47 @@ export default function VendorApp() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <div className="card" style={{ flex: 1, overflowY: "auto" }}>
-                <div className="flex" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div className="card" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
+                {selectedChatId && (
+                  <div style={{ position: "absolute", top: 10, right: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                    {selectMode && (
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={handleDeleteSelectedMessages}
+                        disabled={selectedMessageIndexes.length === 0}
+                        style={{ padding: "8px 10px" }}
+                      >
+                        Delete selected
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => {
+                        setSelectMode((v) => !v);
+                        setSelectedMessageIndexes([]);
+                      }}
+                      style={{
+                        padding: "8px 10px",
+                        background: "#e5e7eb",
+                        color: "#111827",
+                        borderColor: "#d1d5db",
+                      }}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                )}
+                <div
+                  className="flex"
+                  style={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 8,
+                    paddingRight: selectedChatId ? 90 : 0,
+                  }}
+                >
                   <h4 style={{ margin: 0 }}>{selectedChatName || "Select a conversation"}</h4>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1200,17 +1343,41 @@ export default function VendorApp() {
                           padding: "8px 12px",
                           borderRadius: 12,
                           maxWidth: "80%",
+                          position: "relative",
                         }}
                       >
                         {msg.message}
+                        {selectMode && (
+                          <input
+                            type="checkbox"
+                            checked={selectedMessageIndexes.includes(idx)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedMessageIndexes((prev) => [...prev, idx]);
+                              } else {
+                                setSelectedMessageIndexes((prev) => prev.filter((i) => i !== idx));
+                              }
+                            }}
+                            style={{
+                              position: "absolute",
+                              top: -10,
+                              right: -10,
+                              width: 18,
+                              height: 18,
+                            }}
+                          />
+                        )}
                       </div>
                       <div style={{ fontSize: "11px", color: "#6b7280" }}>
-                        {msg.createdAt?.toDate
-                          ? msg.createdAt.toDate().toLocaleString()
-                          : new Date(msg.createdAt).toLocaleString()}
-                      </div>
-                    </div>
-                  ))}
+                            {(() => {
+                              const ts = msg.createdAt;
+                              if (!ts) return "";
+                              const dateObj = ts.toDate ? ts.toDate() : new Date(ts);
+                              return isNaN(dateObj.getTime()) ? "" : dateObj.toLocaleString();
+                            })()}
+                          </div>
+                        </div>
+                      ))}
                   {chatMessages.length === 0 && <p className="subtitle">No messages</p>}
                 </div>
               </div>

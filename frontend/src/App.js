@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Contact from "./components/Contact";
 import { AuthProvider } from "./Context/AuthContext";
 import VendorApp from "./vendor/VendorApp";
+import Welcome from "./components/Welcome";
 
 function App() {
   
@@ -32,7 +33,7 @@ function App() {
       <BrowserRouter>
         <Routes>
 
-          <Route path="/" element={<Navigate to="/register" />} />
+          <Route path="/" element={<Welcome />} />
 
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
