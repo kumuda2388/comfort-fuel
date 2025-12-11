@@ -258,16 +258,15 @@ export default function VendorApp() {
     );
   };
 
-  const acceptedToday = vendorOrders.filter((o) => {
+  const allOrdersCount = vendorOrders.length;
+
+  const acceptedOrders = vendorOrders.filter((o) => {
     const status = o.status;
     const normalized = status === "ordered" || !status ? "Pending" : status;
-    const ts = o.updatedAt || o.createdAt;
-    return (normalized === "Accepted" || normalized === "Ready for Pickup") && isToday(ts);
+    return normalized === "Accepted" || normalized === "Ready for Pickup";
   });
 
-  const ordersTodayCount = acceptedToday.length;
-
-  const revenueToday = acceptedToday.reduce((sum, order) => {
+  const revenueToday = acceptedOrders.reduce((sum, order) => {
     if (!Array.isArray(order.items)) return sum;
     const itemsTotal = order.items.reduce((sub, item) => {
       const qty = item.quantity || 1;
@@ -277,7 +276,7 @@ export default function VendorApp() {
     return sum + itemsTotal;
   }, 0);
 
-  const topMealMap = acceptedToday.reduce((map, order) => {
+  const topMealMap = acceptedOrders.reduce((map, order) => {
     if (!Array.isArray(order.items)) return map;
     order.items.forEach((item) => {
       const key = item.title || item.name || item.recipeTitle || "Item";
@@ -295,6 +294,15 @@ export default function VendorApp() {
       .map(([name]) => name);
     topMealsDisplay = meals.join(", ");
   }
+
+  const statusCounts = vendorOrders.reduce(
+    (acc, o) => {
+      const s = o.status === "ordered" || !o.status ? "Pending" : o.status;
+      acc[s] = (acc[s] || 0) + 1;
+      return acc;
+    },
+    { Pending: 0, Accepted: 0, Rejected: 0, "Ready for Pickup": 0 }
+  );
 
   const navClass = (id) => `nav-link ${section === id ? "active" : ""}`;
   const show = (id) => `page-section ${section === id ? "active" : ""}`;
@@ -737,15 +745,44 @@ export default function VendorApp() {
             </h1>
             <p className="subtitle">Manage your menu, orders, and customer chats.</p>
           </div>
-          <div className="metrics">
+          <div
+            className="metrics"
+            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 12 }}
+          >
             <div className="metric-card">
               <div className="metric-label">Orders today</div>
-              <div className="metric-value" id="metric-orders">{ordersTodayCount}</div>
+              <div className="metric-value" id="metric-orders">{allOrdersCount}</div>
             </div>
+            <div className="metric-card">
+              <div className="metric-label">Pending</div>
+              <div className="metric-value">{statusCounts.Pending}</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-label">Accepted</div>
+              <div className="metric-value">{statusCounts.Accepted}</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-label">Rejected</div>
+              <div className="metric-value">{statusCounts.Rejected}</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-label">Ready for Pickup</div>
+              <div className="metric-value">{statusCounts["Ready for Pickup"]}</div>
+            </div>
+          </div>
+          <div
+            className="metrics"
+            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 12, marginTop: 12 }}
+          >
             <div className="metric-card">
               <div className="metric-label">Revenue today</div>
               <div className="metric-value" id="metric-revenue">${revenueToday.toFixed(2)}</div>
             </div>
+          </div>
+          <div
+            className="metrics"
+            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 12, marginTop: 12 }}
+          >
             <div className="metric-card">
               <div className="metric-label">Top meal (7d)</div>
               <div className="metric-value" id="metric-top">{topMealsDisplay}</div>
