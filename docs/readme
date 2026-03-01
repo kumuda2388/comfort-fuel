@@ -6,21 +6,21 @@ Comfort Fuel is a full-stack web application designed to connect customers with 
 
 The platform provides:
 
-- Customer portal for browsing and ordering meals
-- Vendor portal for managing recipes and orders
-- Real-time chat between customers and vendors
-- Order tracking and status updates
-- Responsive UI with dark/light mode support
+- A **Customer Portal** for browsing and ordering meals  
+- A **Vendor Portal** for managing recipes and processing orders  
+- Real-time chat between customers and vendors  
+- Order tracking with status updates  
+- Responsive UI with dark/light mode support  
 
-The application is built using React and Firebase and is deployed on AWS Amplify.
+The application is built using **React.js** and **Firebase**, and is deployed using **AWS Amplify** for cloud hosting and continuous deployment.
 
 ---
 
 ## Live Deployment
 
-The application is deployed using **AWS Amplify** and is publicly accessible at:
+The application is deployed using AWS Amplify and is accessible at:
 
-🔗 https://<your-amplify-link>.amplifyapp.com
+**https://<your-amplify-link>.amplifyapp.com**
 
 ---
 
@@ -30,13 +30,11 @@ The application is deployed using **AWS Amplify** and is publicly accessible at:
 - React.js
 - React Router DOM
 - React Icons
-- Firebase SDK
 - CSS
 
-### Backend / Database
+### Backend & Database
 - Firebase Authentication
-- Firebase Firestore (NoSQL database)
-- Firebase Hosting (during development)
+- Firebase Firestore (NoSQL Database)
 
 ### Deployment
 - AWS Amplify
@@ -56,17 +54,17 @@ The application is deployed using **AWS Amplify** and is publicly accessible at:
 - Google OAuth Login
 - Browse and filter meals
 - Customize ingredients and portion sizes
-- Add to cart and place orders
-- Real-time order tracking
-- Chat with vendor
-- Profile and theme settings
-- Order history
+- Add items to cart
+- Place and track orders
+- Real-time chat with vendor
+- Profile management and dark/light mode
+- View past orders
 
 ### Vendor Features
 - Vendor login portal
 - Dashboard with order overview
-- Add/Edit/Delete recipes
-- Manage orders (Accept/Reject/Complete)
+- Add, edit, and delete recipes
+- Manage orders (Accept / Reject / Complete)
 - Chat with customers
 - Profile and theme settings
 
@@ -74,29 +72,29 @@ The application is deployed using **AWS Amplify** and is publicly accessible at:
 
 ## System Architecture
 
-Frontend (React)  
+React Frontend  
 → Firebase Authentication  
-→ Firebase Firestore Database  
+→ Firebase Firestore  
 → AWS Amplify Deployment  
 
-All real-time interactions (orders, chat, updates) are handled through Firebase.
+All real-time interactions such as order updates and chat messaging are handled through Firebase.
 
 ---
 
-# Project Setup (Local Development)
+## Local Development Setup
 
-## Prerequisites
+### Prerequisites
 
-- Node.js installed
-- npm installed
-- Firebase project configured
-- Git installed
+- Node.js installed  
+- npm installed  
+- Firebase project configured  
+- Git installed  
 
 ---
 
-# Frontend Setup
+## Frontend Setup
 
-## Step 1: Create React App
+### 1. Create React App
 
 ```bash
 npx create-react-app frontend
@@ -106,7 +104,7 @@ npx create-react-app frontend
 
 ---
 
-## Step 2: Navigate to Frontend Folder
+### 2. Navigate to Frontend Folder
 
 ```bash
 cd frontend
@@ -114,7 +112,7 @@ cd frontend
 
 ---
 
-## Step 3: Install Dependencies
+### 3. Install Dependencies
 
 ```bash
 npm install firebase
@@ -124,51 +122,36 @@ npm install react-icons
 
 ---
 
-## Step 4: Start Frontend
+### 4. Start Frontend
 
 ```bash
 npm start
 ```
 
-This will start the development server at:
+The application will run at:
 
-```
 http://localhost:3000
-```
 
 ---
 
-# Backend Setup (Optional / Future Scope)
+## Backend Setup (Optional – Future Scope)
 
-Currently, the project uses Firebase as the backend.
+Currently, Firebase handles backend services.  
+If an Express backend is required in the future:
 
-If an Express backend is required in future:
-
----
-
-## Step 1: Initialize Backend
+### Initialize Backend
 
 ```bash
 npm init -y
 ```
 
----
-
-## Step 2: Install Backend Dependencies
+### Install Dependencies
 
 ```bash
 npm install express cors
 ```
 
----
-
-## Step 3: Create server.js
-
-Create a file named `server.js` and add Express server logic.
-
----
-
-## Step 4: Start Backend Server
+### Start Backend Server
 
 ```bash
 node server.js
@@ -176,105 +159,97 @@ node server.js
 
 ---
 
-# Enable Auto-Refresh for Backend (Development)
+## Enable Automatic Backend Refresh (Development)
 
-To automatically restart backend on file changes:
-
-## Install Nodemon Globally
+Install nodemon globally:
 
 ```bash
 npm install -g nodemon
 ```
 
-## Or Install as Dev Dependency
+Or install as a development dependency:
 
 ```bash
 npm install nodemon --save-dev
 ```
 
-## Start Server with Nodemon
+Run backend with auto-refresh:
 
 ```bash
 nodemon server.js
 ```
 
-Now backend will refresh automatically when files change.
+---
+
+## Firebase Configuration
+
+1. Create a Firebase project.  
+2. Enable Authentication (Email/Password and Google).  
+3. Enable Firestore Database.  
+4. Add Firebase configuration to the React project.  
+5. Configure appropriate security rules.  
 
 ---
 
-# Firebase Configuration
+## Deployment Using AWS Amplify
 
-1. Create a Firebase project
-2. Enable:
-   - Authentication (Email/Password + Google)
-   - Firestore Database
-3. Add Firebase config to your React project
-4. Configure security rules
+1. Push the project to GitHub.  
+2. Connect the GitHub repository to AWS Amplify.  
+3. Configure build settings.  
+4. Deploy from the main branch.  
 
----
-
-# Deployment (AWS Amplify)
-
-## Steps Used for Deployment
-
-1. Push project to GitHub
-2. Connect GitHub repository to AWS Amplify
-3. Configure build settings
-4. Deploy automatically from main branch
-
-Amplify handles:
-- Build process
-- Hosting
-- Continuous deployment
+AWS Amplify handles:
+- Build process  
+- Hosting  
+- Continuous deployment  
 
 ---
 
-# Database Structure (Firestore)
+## Database Structure (Firestore Collections)
 
-Collections:
-
-- Users
-- Vendors
-- Recipes
-- Orders
-- Carts
-- Chats
-- UserSettings
+- Users  
+- Vendors  
+- Recipes  
+- Orders  
+- Carts  
+- Chats  
+- UserSettings  
 
 Each collection uses structured document-based storage to ensure scalability.
 
 ---
 
-# Future Improvements
+## Future Improvements
 
-- Payment Gateway Integration
-- Delivery Tracking System
-- Multi-Vendor Marketplace Support
-- Real-time Notifications
-- Advanced Filtering & Categorization
-- Chatbot Assistance
-- Automated Testing
-
----
-
-# Known Limitations
-
-- Payments are currently assumed to be cash
-- Delivery tracking not implemented
-- Limited image handling
-- No automated testing yet
+- Payment gateway integration  
+- Delivery tracking system  
+- Multi-vendor marketplace support  
+- Real-time notifications  
+- Advanced filtering and categorization  
+- Chatbot assistance  
+- Automated testing  
 
 ---
 
-# Project Status
+## Known Limitations
+
+- Payments are currently assumed to be cash  
+- Delivery tracking is not implemented  
+- Limited image handling in demo version  
+- No automated testing yet  
+
+---
+
+## Project Status
 
 Fully functional MVP with:
 
-- Customer and Vendor portals
-- Firebase backend
-- Real-time chat and order management
-- AWS Amplify deployment
-- Responsive UI with dark/light mode
+- Customer and Vendor portals  
+- Firebase backend  
+- Real-time chat and order management  
+- AWS Amplify deployment  
+- Responsive UI with dark/light mode  
 
 Designed to scale into a multi-vendor marketplace platform.
+
 
