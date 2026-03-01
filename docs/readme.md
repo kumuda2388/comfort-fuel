@@ -20,7 +20,7 @@ The application is built using **React.js** and **Firebase**, and is deployed us
 
 The application is deployed using AWS Amplify and is accessible at:
 
-**https://<your-amplify-link>.amplifyapp.com**
+**https://main.d26j35oj1i5knf.amplifyapp.com/**
 
 ---
 
